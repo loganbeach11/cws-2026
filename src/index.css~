@@ -1,0 +1,241 @@
+/* Reset and base styles */
+body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: navy;
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+}
+
+
+h1, h2, h3 {
+  text-align: center;
+  color: #1d3557;
+}
+
+a {
+  color: #1d3557;
+  text-decoration: none;
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 2rem;
+}
+
+/* AuthForm styling */
+.auth-form {
+  background: white;
+  padding: 1.5rem;
+  margin: 1rem auto;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  max-width: 400px;
+}
+
+.auth-form input {
+  width: 100%;
+  padding: 0.7rem;
+  margin: 0.5rem 0;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.auth-form button {
+  width: 100%;
+  padding: 0.8rem;
+  background: #1d3557;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.auth-form button:hover {
+  background: #457b9d;
+}
+
+/* Bracket layout */
+.bracket {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.game {
+background: white;
+border-radius: 8px;
+padding: 0.8rem;
+box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+text-align: center;
+border-left: 4px solid #1d3557;
+}
+
+ .game.locked {
+     opacity: 0.6;
+     pointer-events: none;
+ }
+
+ .team {
+     padding: 0.4rem;
+     border-radius: 4px;
+     margin: 0.3rem 0;
+     transition: background 0.2s;
+     cursor: pointer;
+     border: 1px solid transparent;
+ }
+
+ .team:hover {
+     background: #f1f1f1;
+ }
+
+ .team.selected {
+     background: #e0f0ff;
+     border: 1px solid #1d3557;
+ }
+
+ .team.correct {
+     background: #b5f7b3; /* green */
+     border: 1px solid #2e7d32;
+ }
+
+ .team.incorrect {
+     background: #ffbaba; /* red */
+     border: 1px solid #c62828;
+ }
+
+ /* Leaderboard styling */
+ .leaderboard {
+     background: white;
+     padding: 1rem 2rem;
+     margin: 2rem auto;
+     border-radius: 10px;
+     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+     max-width: 600px;
+     border-left: 6px solid #1d3557;
+ }
+
+ .leaderboard ol {
+     list-style: none;
+     padding: 0;
+ }
+
+ .leaderboard li {
+     display: flex;
+     justify-content: space-between;
+     padding: 0.6rem 0;
+     border-bottom: 1px solid #e0e0e0;
+ }
+
+ .leaderboard li:last-child {
+     border-bottom: none;
+ }
+
+ .leaderboard li span:first-child {
+     font-weight: 600;
+ }
+
+ .leaderboard h2 {
+     margin-bottom: 1rem;
+     color: #1d3557;
+ }
+
+ /* Admin panel */
+ .admin-panel {
+     background: #fff;
+     padding: 1rem;
+     margin: 2rem auto;
+     border-radius: 10px;
+     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+     max-width: 700px;
+     border-left: 6px solid #e76f51;
+ }
+
+ .admin-panel h3 {
+     color: #e76f51;
+     margin-bottom: 1rem;
+ }
+
+ .admin-panel input {
+     padding: 0.5rem;
+     margin: 0.3rem;
+     border-radius: 5px;
+     border: 1px solid #ccc;
+ }
+
+ .admin-panel button {
+     background: #e76f51;
+     color: white;
+     border: none;
+     padding: 0.6rem 1rem;
+     border-radius: 5px;
+     font-weight: bold;
+     cursor: pointer;
+ }
+
+ .admin-panel button:hover {
+     background: #d35400;
+ }
+ .team-option {
+  cursor: pointer;
+  padding: 8px;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.team-option:hover {
+  border-color: #ccc;
+}
+
+.team-option.selected {
+  background-color: #007bff;
+  color: white;
+}
+
+.team-option.correct {
+  background-color: #28a745;
+}
+
+.team-option.incorrect {
+  background-color: #dc3545;
+}
+
+.locked-game {
+  opacity: 0.6;
+  pointer-events: none;
+}
+.app-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 2rem;
+}
+/* App.css or your main global stylesheet */
+.fixed-header {
+
+  top: 0;
+  width: 100%;
+  background-color: #001f3f; /* Optional: match your navy color */
+  color: white;
+  text-align: center;
+  padding: 10px 0;
+  z-index: 1000;
+}
+
+.scrollable-content {
+  margin-top: 60px; /* Make room for fixed header */
+  padding: 20px;
+  overflow-y: auto;
+}

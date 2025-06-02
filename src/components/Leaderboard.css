@@ -1,0 +1,25 @@
+/* src/components/Leaderboard.css */
+.leaderboard {
+  text-align: center;
+  padding: 20px;
+  max-width: 400px;
+  margin: 0 auto;
+  background: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+}
+
+.leaderboard h2 {
+  margin-bottom: 15px;
+}
+
+.leaderboard ol {
+  padding-left: 20px;
+  text-align: left;
+  list-style: none;
+}
+
+.leaderboard li {
+  margin: 8px 0;
+  font-size: 1.1rem;
+}

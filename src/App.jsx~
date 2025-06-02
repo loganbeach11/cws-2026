@@ -1,0 +1,119 @@
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import AuthForm from './components/AuthForm';
+import Bracket from './components/Bracket';
+import Leaderboard from './components/Leaderboard';
+import { useLocation } from "react-router-dom";
+import { doc, onSnapshot } from "firebase/firestore";
+import { db } from "./firebase";
+
+function App() {
+  const [isAdmin, setIsAdmin] = useState(false);
+    const [user, setUser] = useState(null);
+    const [userScore, setUserScore] = useState(0);
+  const navigate = useNavigate();
+  const location = useLocation();
+ const loginAsAdmin = () => setIsAdmin(true);
+  const handleLogin = (username) => {
+    setUser(username);
+    navigate('/tournament');
+  };
+
+  // ⬇️ Dynamically set body scroll depending on page                                                                                       
+  useEffect(() => {
+    document.body.style.overflowY = user ? 'auto' : 'hidden';
+  }, [user]);
+
+    useEffect(() => {
+  if (!user) return;
+
+  const userRef = doc(db, "users", user);
+  const unsubscribe = onSnapshot(userRef, (docSnap) => {
+    if (docSnap.exists()) {
+      setUserScore(docSnap.data().score || 0);
+    }
+  });
+
+  return () => unsubscribe();
+}, [user]);
+    return (
+    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh", backgroundColor: "navy" }}>                                
+      {/* Shared Header */}                                                                                                                
+<div style={{
+    width: "100%",
+    background: "#fff",
+    boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+    position: "relative",
+    padding: "20px 0",
+  }}
+>                                                                                                                                          
+  {/* Centered Title */}                                                                                                                   
+  <h1
+    style={{
+      margin: 0,
+      textAlign: "center",
+      fontSize: "1.8rem",
+    }}
+  >                                                                                                                                        
+    2025 CWS Bracket                                                                                                                       
+  </h1>
+    {/* Right-Aligned User Info (only on tournament page) */}                                                                                
+  {user && location.pathname === "/tournament" && (
+    <div
+      style={{
+        position: "absolute",
+        right: "40px",
+        top: "50%",
+        transform: "translateY(-50%)",
+        color: "darkorange",
+        fontWeight: "bold",
+        whiteSpace: "nowrap",
+      }}
+    >                                                                                                             
+      {user} - {userScore} {userScore === 1 ? "point" : "points"}                        
+    </div>
+  )}                                                                                                                                       
+</div>
+	{/* Page Content */}                                                                                                                 
+      <div style={{ flex: 1 }}>                                                                                                            
+        <Routes>                                                                                                                           
+          <Route
+            path="/"
+            element={ 
+              <div
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "flex-start",
+                  paddingTop: "0px",
+                }}
+              >                                                                                                                            
+                <AuthForm setUser={handleLogin} onAdminLogin={loginAsAdmin} />                                                             
+              </div>
+		   }
+          />                                                                                                                               
+          <Route
+            path="/tournament"
+            element={
+              user ? (
+                <>                                                                                                                         
+                  <Bracket isAdmin={isAdmin} />                                                                                            
+                    <Leaderboard currentUsername={user} />                                                                                 
+                </>                                                                                                                        
+              ) : (
+		  <Navigate to="/" />
+              )
+            }
+          />                                                                                                                               
+        </Routes>                                                                                                                          
+      </div>                                                                                                                               
+    </div>
+  );
+}
+
+export default App;
+      
+
+		 

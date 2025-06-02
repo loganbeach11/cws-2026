@@ -1,0 +1,116 @@
+.auth-form-container {
+    padding: 30px;
+    width: 100%;
+  max-width: 400px;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.auth-form-container h2 {
+  text-align: center;
+  margin-bottom: 15px;
+  margin-top: -5px; 
+  color: #333;
+  font-size: 25px;
+}
+
+.auth-form-container input[type="text"],
+.auth-form-container input[type="password"] {
+  width: 100%;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-size: 1.1rem;   
+}
+
+.auth-form-container button {
+  width: 100%;
+  padding: 17px;
+  background-color: #0057d9;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 18.5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.auth-form-container button:hover {
+  background-color: #0041a8;
+}
+
+.auth-form-container p {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 16.5px;
+}
+
+.auth-form-container span {
+  color: #0057d9;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.auth-form-container span:hover {
+  color: #003c9e; /* Darker blue or any color you prefer */
+}
+.toggle-button {
+  margin-top: 10px;
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.3s;
+}
+
+.toggle-button:hover {
+  color: #0056b3;
+}
+.page-wrapper {
+  background-color: navy;
+  width: 100%;
+  min-height: calc(100vh - 80px); /* leave room for header */
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 180px; /* how close you want the form to the header */
+  box-sizing: border-box;
+}
+
+
+/* Responsive layout for small screens */
+@media (max-width: 600px) {
+  .auth-form-container {
+    width: 90%;
+    padding: 20px;
+  }
+
+  .auth-form input,
+  .auth-form button {
+    width: 100%;
+    font-size: 1rem;
+  }
+
+  .page-wrapper {
+    padding-top: 40px;
+  }
+
+  .champion-label {
+    font-size: 1rem;
+  }
+}
+
+/* AuthForm.css */
+
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: navy;
+  overflow: hidden; /* Prevent scroll bar */
+}

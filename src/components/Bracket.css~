@@ -1,0 +1,150 @@
+.bracket-container {
+  padding: 20px;
+  text-align: center;
+  overflow-x: auto;
+}
+
+.bracket-grid {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 128px; /* Change to 100px*/
+  margin-top: 30px;
+ margin-left: 25px;
+}
+
+.bracket-column {
+  display: flex;
+  flex-direction: column;
+  column-gap: 60px;
+  margin-top: 30px,
+}
+
+.champion-banner-line {
+  margin-top: 40px;
+}
+
+.champion-label {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* Optional: style Game container to visualize structure */
+.game-box {
+  border: 2px solid #ccc;
+  padding: 10px;
+  background: white;
+  width: 160px;
+  position: relative;
+}
+
+.locked-indicator {
+  font-size: 1.2em;
+  color: red;
+  margin-top: 5px;
+}
+
+/* Game card style */
+.game-card {
+  border: 2px solid #ccc;
+  padding: 10px;
+  background-color: #fff;
+  width: 180px;
+  text-align: center;
+  position: relative;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.team {
+  padding: 6px;
+  margin: 4px 0;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.team:hover {
+  background-color: #eef;
+}
+
+.team.picked {
+  background-color: #cce5ff;
+  font-weight: bold;
+}
+
+.team.correct {
+   background-color: #d4edda;
+  color: green;
+  font-weight: bold;
+}
+
+.team.incorrect {
+  background-color: #f8d7da;
+  color: red;
+  font-weight: bold;
+}
+
+.admin-controls {
+  margin-top: 8px;
+}
+
+/* Final column: horizontal line and banner */
+.champion-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+}
+
+.champion-line {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  width: 190px;
+  height: 3px;
+  background-color: white;
+  transform: translateY(-50%);
+}
+
+.champion-banner {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 10px);
+  transform: translateY(8px); /* Push text under the line */
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: gold; /* Make the text gold */
+  white-space: nowrap;
+}
+.game-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%; /* Don’t change width — keep layout intact */
+}
+
+.horizontal-line {
+  position: absolute;
+  top: 50%;
+  left: 100%;              /* Starts from the right edge of the game box */
+  width: 118px;
+  height: 3px;
+  background-color: white;
+  transform: translateY(-50%);
+  pointer-events: none;    /* Prevents it from interfering with clicks */
+  z-index: 1;
+}
+.bracket-label {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 5px);
+  transform: translateY(10px); /* Places label just under the line */
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: white;
+  white-space: nowrap;
+  z-index: 2;
+}
