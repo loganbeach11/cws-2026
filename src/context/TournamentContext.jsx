@@ -8,7 +8,9 @@ import {
   getDoc,
   updateDoc,
   deleteField,
-  onSnapshot,
+    onSnapshot,
+    collection,
+    getDocs,
 } from "firebase/firestore";
 
 const TournamentContext = createContext();
@@ -37,38 +39,27 @@ await setDoc(userDocRef, { [gameId]: teamName }, { merge: true });
       team2: "",
       winner: "",
       locked: false,
+      ...(i === 15 && { champion: "TBD" }),
     };
   }
 
   useEffect(() => {
-    const gamesRef = doc(db, "tournament", "games");
+  const gamesDocRef = doc(db, "tournament", "games");
 
-    const unsub = onSnapshot(gamesRef, async (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        const cleaned = {};
-        let changed = false;
+  const unsubscribe = onSnapshot(gamesDocRef, async (docSnap) => {
+    if (docSnap.exists()) {
+      setGames(docSnap.data());
+    } else {
+      // Only set defaults and create document if no games doc exists
+      await setDoc(gamesDocRef, defaultGames);
+      setGames(defaultGames);
+    }
+  });
 
-	 for (const [id, game] of Object.entries(data)) {
-          const { picked, team1, team2 } = game;
-          const pickedName = game[picked];
-          if (picked && pickedName === "TBD") {
-            cleaned[id] = { ...game, picked: null };
-            changed = true;
-          } else {
-            cleaned[id] = game;
-          }
-        }
+  return () => unsubscribe();
+}, []);
 
-        setGames(cleaned);
-        if (changed) await setDoc(gamesRef, cleaned);
-      } else {
-        setGames(defaultGames);
-        await setDoc(gamesRef, defaultGames);
-      }
-    });
-     return () => unsub();
-  }, []);
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -94,19 +85,10 @@ await setDoc(userDocRef, { [gameId]: teamName }, { merge: true });
      return () => unsubscribe();
   }, [user]);
 
-  const updateGame = async (id, updatedData) => {
-    const gameRef = doc(db, "tournament", "games");
-    const currentData = (await getDoc(gameRef)).data() || defaultGames;
+    const updateGame = async (id, updatedData) => {
+    const gameRef = doc(db, "tournament", "games", String(id));
+await setDoc(gameRef, updatedData, { merge: true });
 
-    const newGames = {
-      ...currentData,
-      [id]: {
-        ...currentData[id],
-        ...updatedData,
-      },
-    };
-
-    await setDoc(gameRef, newGames);
   };
 
     useEffect(() => {

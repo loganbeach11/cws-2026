@@ -1,0 +1,80 @@
+import React, { useEffect, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Fireworks } from "fireworks-js";
+import "./WinnerScreen.css";
+
+export default function WinnerScreen() {
+  const canvasRef = useRef(null);
+  const fireworksRef = useRef(null);
+  const audioRef = useRef(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    console.log("🏆 WinnerScreen mounted");
+
+    if (!canvasRef.current) return;
+
+    console.log("🎆 Starting fireworks...");
+
+    const fireworks = new Fireworks(canvasRef.current, {
+      autoresize: true,
+      opacity: 0.9,
+      acceleration: 1.05,
+      friction: 0.97,
+      gravity: 1.5,
+      particles: 100,
+      trace: 5,
+      explosion: 10,
+      intensity: 30,
+      flickering: 80,
+      lineWidth: {
+        trace: 1,
+        explosion: 2,
+      },
+    });
+
+    fireworks.start();
+    fireworksRef.current = fireworks;
+
+    const audio = new Audio("/fireworks.mp3");
+    audio.loop = false;
+    audio.play().catch((err) => {
+      console.warn("⚠️ Audio play failed:", err);
+    });
+    audioRef.current = audio;
+
+    return () => {
+      fireworks.stop();
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, []);
+
+  // Stop audio and fireworks if user navigates away
+  useEffect(() => {
+    // If location changes away from /winner, stop effects
+    if (location.pathname !== "/winner") {
+      if (fireworksRef.current) fireworksRef.current.stop();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    }
+  }, [location]);
+
+  return (
+    <div className="winner-screen">
+      <canvas ref={canvasRef} className="fireworks-canvas" />
+      <div className="winner-content" style={{ marginTop: "-50px" }}>
+        <h2 style={{ color: "green" }}>YOU WIN!</h2>
+        <button
+          className="view-bracket-btn"
+          onClick={() => navigate("/tournament")}
+        >
+          View Bracket
+        </button>
+      </div>
+    </div>
+  );
+}

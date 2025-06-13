@@ -11,12 +11,19 @@
 }
 
 .team {
-  padding: 6px;
-  margin: 4px 0;
+    height: 35px;
+  display: flex;                 /* enables flex layout */
+  align-items: center;          /* vertically center content */
+  justify-content: center;      /* horizontally center content */
+  padding: 4px 2px;
+  margin: 2px 0;
   border-radius: 4px;
   cursor: pointer;
   transition: background 0.2s;
+  width: 100%;
+  box-sizing: border-box;
 }
+
 
 .team:hover {
   background-color: #eef;
@@ -25,6 +32,12 @@
 .team.picked {
   background-color: #cce5ff;
   font-weight: bold;
+}
+
+/* Preserve light blue background for picked team even when locked */
+.team.picked.locked:hover {
+  background-color: #cce5ff;
+  cursor: default;
 }
 
 .team.correct {
@@ -41,7 +54,7 @@
 .team.correct:hover,
 .team.incorrect:hover {
   background-color: inherit;
-  cursor: default;
+  cursor: default !important;
 }
 
 .vs {
@@ -124,5 +137,23 @@ span.winner-highlight {
 }
 .team.locked:hover {
   background-color: inherit;
-  cursor: default;
+  cursor: default !important;
+}
+
+.team-label {
+  display: block;
+  width: 100%;               /* ✅ fills full button width */
+  padding: 0 0;            /* small left/right spacing */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  line-height: normal;
+  box-sizing: border-box;    /* include padding in width */
+  font-size: 1.1em;
+}
+
+/* Smaller font size for "Loser Game 11/12 (if first loss)" */
+.team-label.small-text {
+  font-size: 0.7em; /* adjust this size as you prefer */
 }

@@ -1,0 +1,60 @@
+/* WinnerScreen.css */
+
+.winner-screen, .loser-screen {
+  height: 100vh;          /* Full viewport height */
+  overflow-y: hidden !important;     /* Disable vertical scrolling */
+  background-color: navy; /* Keep your background */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Vertically center content by default */
+  align-items: center;     /* Horizontally center content */
+  position: relative;      /* For any absolute children */
+}
+
+
+.fireworks-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.winner-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  transform: translateY(-100px);
+}
+
+.winner-content h2 {
+  color: green;
+  font-size: 3rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.view-bracket-btn {
+  margin-top: 20px;
+  padding: 12px 24px;
+  font-size: 1.2rem;
+  background-color: navy;
+  border: 2px solid white;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  border-radius: 5px;
+}
+
+.view-bracket-btn:hover {
+  background-color: #add8e6; /* light blue */
+  color: navy;
+}
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Disable scrolling on whole page */
+}

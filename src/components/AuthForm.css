@@ -73,44 +73,86 @@
 .page-wrapper {
   background-color: navy;
   width: 100%;
-  min-height: calc(100vh - 80px); /* leave room for header */
+  min-height: 100vh;
+  padding-top: 180px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: manipulation;
+
+  /* Default: center on desktop */
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding-top: 180px; /* how close you want the form to the header */
-  box-sizing: border-box;
 }
+
+
 
 
 /* Responsive layout for small screens */
 @media (max-width: 600px) {
-  .auth-form-container {
-    width: 90%;
-    padding: 20px;
+  body, html {
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    height: auto;
   }
 
-  .auth-form input,
+  .auth-form-container {
+    width: 90%;
+    padding: 15px;
+    margin: 90px auto 0 auto !important;
+    transform: scale(0.9);
+    transform-origin: top center;
+  }
+
+  .auth-form input {
+    width: 100%;
+    font-size: 1.15rem;
+    padding: 14px;
+  }
   .auth-form button {
     width: 100%;
-    font-size: 1rem;
+    font-size: 1.15rem;
+    padding: 16px;
   }
 
   .page-wrapper {
-    padding-top: 40px;
-  }
-
-  .champion-label {
-    font-size: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    min-height: 100vh;
+    padding-top: 0 !important;
   }
 }
 
-/* AuthForm.css */
-
+/* Desktop base styles */
 body, html {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
   background-color: navy;
-  overflow: hidden; /* Prevent scroll bar */
 }
+
+@media (min-width: 601px) {
+  body.login-lock, html.login-lock {
+    overflow: hidden !important;
+    height: 100vh;
+  }
+
+  .page-wrapper {
+    padding-top: 130px; /* Restore original spacing on desktop */
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .auth-form-container {
+    max-width: 400px;
+    transform: none;
+  }
+}
+

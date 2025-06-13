@@ -1,16 +1,46 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { doc, getDoc, getDocs,onSnapshot, setDoc, collection } from "firebase/firestore";
 import "./Leaderboard.css";
 
 function Leaderboard({ currentUsername }) {
   const [users, setUsers] = useState([]);
 
-  useEffect(() => {
-  const fetchLeaderboard = async () => {
-    const userCollection = collection(db, "users");
-    const snapshot = await getDocs(userCollection);
 
+useEffect(() => {
+  const userCollection = collection(db, "users");
+
+  const unsubscribe = onSnapshot(userCollection, async (snapshot) => {
+    // Recalculate scores for all users
+    const gamesSnap = await getDoc(doc(db, "tournament", "games"));
+    const games = gamesSnap.exists() ? gamesSnap.data() : {};
+
+    const picksSnapshot = await getDocs(collection(db, "userPicks"));
+    const picksData = {};
+    picksSnapshot.forEach((doc) => {
+      picksData[doc.id] = doc.data();
+    });
+
+    for (const userDoc of snapshot.docs) {
+      const uid = userDoc.id;
+      const userPicks = picksData[uid] || {};
+      let score = 0;
+
+      Object.entries(userPicks).forEach(([gameId, pick]) => {
+        const game = games[gameId];
+        if (game?.winner && game.winner === pick) {
+          score += 1;
+        }
+      });
+
+      const userRef = doc(db, "users", uid);
+      const current = userDoc.data();
+      if (current.score !== score) {
+        await setDoc(userRef, { username: current.username || uid, score }, { merge: true });
+      }
+    }
+
+    // After scores are updated, rebuild the leaderboard list
     const userList = snapshot.docs
       .map(doc => {
         const data = doc.data();
@@ -19,44 +49,58 @@ function Leaderboard({ currentUsername }) {
           points: data.score || 0,
         };
       })
-      .filter(user => user.username !== "loganbeach11" && user.username !== "loganbeach11@fake.com");
+      .filter(user =>
+        user.username !== "loganbeach11" &&
+        user.username !== "loganbeach11@fake.com" &&
+        user.username !== "lo"
+      );
+
     userList.sort((a, b) => b.points - a.points);
     setUsers(userList);
-  };
+  });
 
-  fetchLeaderboard();
+  return () => unsubscribe();
 }, []);
 
 
-  const getRankedUsers = () => {
-    const ranked = [];
-    let currentRank = 1;
 
-    for (let i = 0; i < users.length; i++) {
-      const current = users[i];
-	const prev = users[i - 1];
-	let isTied = false;
-      if (i > 0 && current.points === prev.points) {
-        isTied = true;
-      }
 
-      // Special case: check if current is tied with next
-      if (i === 0 && users.length > 1 && current.points === users[1].points) {
-        isTied = true;
-      }
+const getRankedUsers = () => {
+  const ranked = [];
+  let currentRank = 1;
+  let tieCount = 1; // Tracks how many users are in the current tie group
 
-      ranked.push({
-        ...current,
-        rank: currentRank,
-        isTied,
-      });
-      if (i + 1 < users.length && current.points !== users[i + 1].points) {
-        currentRank = ranked.length + 1;
-      }
+  for (let i = 0; i < users.length; i++) {
+    const current = users[i];
+    const prev = users[i - 1];
+    const next = users[i + 1];
+
+    const sameAsPrev = i > 0 && current.points === prev.points;
+    const sameAsNext = i < users.length - 1 && current.points === next.points;
+    const isTied = sameAsPrev || sameAsNext;
+
+    const rank = sameAsPrev ? ranked[ranked.length - 1].rank : currentRank;
+
+    ranked.push({
+      ...current,
+      rank,
+      isTied,
+    });
+
+    if (!sameAsNext) {
+      currentRank += tieCount;
+      tieCount = 1; // reset
+    } else {
+      tieCount++;
     }
+  }
 
-    return ranked;
-  };
+  return ranked;
+};
+
+
+
+
 
   const renderRank = (rank, isTied) => {
     const prefix = isTied ? "(Tie) " : "";
@@ -76,8 +120,14 @@ function Leaderboard({ currentUsername }) {
           <li key={user.username}>
             <span>
               {renderRank(user.rank, user.isTied)}{" "}
-              <span style={user.username === currentUsername ? { color: 'navy', fontWeight: 'bold' } : {}}>
-                {user.username} - {user.points} {user.points === 1 ? "point" : "points"}
+              <span
+  className={
+    user.username.toLowerCase() === currentUsername.toLowerCase()
+      ? "highlight-user"
+      : ""
+  }
+>
+  {user.username} - {user.points} {user.points === 1 ? "point" : "points"}
               </span>
             </span>
           </li>

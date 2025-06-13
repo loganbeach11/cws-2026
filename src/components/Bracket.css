@@ -2,15 +2,19 @@
   padding: 20px;
   text-align: center;
   overflow-x: auto;
+  overflow-y: hidden;
+  min-width: 100vw;
+  box-sizing: border-box;
+  padding-right: 100px; /* <-- gives extra scroll space on the right */
 }
-
 .bracket-grid {
   display: flex;
   justify-content: flex-start;
   align-items: flex-start;
   gap: 128px; /* Change to 100px*/
   margin-top: 30px;
- margin-left: 25px;
+  margin-left: 15px;
+  padding-right: 60px;
 }
 
 .bracket-column {
@@ -106,6 +110,7 @@
   height: 3px;
   background-color: white;
   transform: translateY(-50%);
+  padding-right: 10px;
 }
 
 .champion-banner {
@@ -113,7 +118,7 @@
   top: 50%;
   left: calc(100% + 10px);
   transform: translateY(8px); /* Push text under the line */
-  font-size: 0.9rem;
+  font-size: 0.95rem;/*0.95*/
   font-weight: bold;
   color: gold; /* Make the text gold */
   white-space: nowrap;
@@ -124,14 +129,15 @@
   justify-content: center;
   align-items: center;
   width: 100%; /* Don’t change width — keep layout intact */
+  flex-direction: column;
 }
 
 .horizontal-line {
   position: absolute;
   top: 50%;
   left: 100%;              /* Starts from the right edge of the game box */
-  width: 118px;
-  height: 3px;
+  width: 118px; /* change back to 118 */
+  height: 4px;
   background-color: white;
   transform: translateY(-50%);
   pointer-events: none;    /* Prevents it from interfering with clicks */
@@ -153,4 +159,161 @@
   color: #aaa;
   background-color: #f0f0f0;
   border: 1px dashed #ccc;
+}
+@media (max-width: 500px) {
+  .bracket-container {
+    overflow-x: auto;
+    padding-bottom: 20px; /* for comfort */
+  }
+
+  .bracket-grid {
+    width: max-content; /* ensure scrollable width grows */
+    margin-right: 0;
+    padding-right: 100px; /* guarantees scroll space on the right */
+  }
+
+  .champion-line {
+    width: 150px;
+  }
+
+  .champion-banner {
+    padding-right: 20px;
+  }
+}
+.vertical-line {
+  position: absolute;
+  width: 4px;
+  background-color: white; /* change below back to: left: calc(100% + 116px*/
+  left: calc(100% + 116px); /* align with end of horizontal line */
+  transform: translateX(-50%);
+  z-index: 0;
+}
+
+.line-between {
+  height: 190px;
+  top: 50%;
+}
+
+.line-upward {
+  height: 60px;
+  top: auto;
+  bottom: 50%;
+}
+.line-between-col2a {
+  height: 190px; /* Adjust as needed for spacing between Game 6 and 9 */
+  top: 50%;
+}
+
+.line-between-col2b {
+  height: 190px; /* Adjust as needed for spacing between Game 8 and 10 */
+  top: 50%;
+}
+.line-downward-col3 {
+  height: 30px;       /* Adjust based on visual balance */
+  top: 50%;            /* Start from the middle of horizontal line */
+}
+
+.line-upward-col3 {
+  height: 30px;       /* Match the downward length */
+  top: auto;
+  bottom: 50%;         /* Extend upward from the middle of the lower game */
+}
+
+.line-between-col4 {
+  height: 446px; /* Adjust this if the vertical gap is different */
+  top: 50%;
+  left: calc(100% + 116px);
+  transform: translateX(-50%);
+  position: absolute;
+  width: 4px;
+  background-color: white;
+  z-index: 0;
+  top: 66px;
+}
+.horizontal-connector {
+  position: absolute;
+  width: 14px; /* Controls how far it extends to the right */
+  height: 3px;
+  background-color: white;
+  transform: translateX(0); /* aligns to left side of line */
+  z-index: 0;
+}
+
+/* For vertical lines that connect two games */
+.horizontal-connector.center {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* For vertical lines extending DOWN from a game (e.g. Game 5, Game 11) */
+.horizontal-connector.bottom {
+  bottom: 100%; /* bottom of vertical line */
+}
+
+/* For vertical lines extending UP from a game (e.g. Game 7, Game 12) */
+.horizontal-connector.top {
+  top: 100%; /* top of vertical line */
+}
+
+@media (max-width: 600px) {
+  .line-between-col4 {
+    height: 450px; /* add 2px just for mobile */
+  }
+  .line-between {
+  height: 193px;
+  top: 50%;
+  }
+  .line-between-col2a {
+  height: 193px; /* Adjust as needed for spacing between Game 6 and 9 */
+  top: 50%;
+}
+
+.line-between-col2b {
+  height: 193px; /* Adjust as needed for spacing between Game 8 and 10 */
+  top: 50%;
+}
+.champion-line {
+    width: 193px;
+}
+}
+.game-label {
+  position: absolute;
+  top: -22px;              /* Keeps 3px spacing above the game box */
+  left: 0;
+  width: 100%;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  white-space: nowrap;     /* Prevent wrapping */
+  pointer-events: none;
+  z-index: 2;
+}
+.champion-input {
+  position: absolute;
+  top: calc(50% - 2px); /* 2px above the line */
+  left: calc(100% + 10px);
+  transform: translateY(-100%); /* move input slightly above the line */
+  width: 160px;
+  background: white;
+  border: 1px solid #ccc;
+  color: black;
+  padding: 4px 6px;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  text-align: left;
+  z-index: 2;
+}
+
+.champion-display {
+  position: absolute;
+  top: calc(50% - 4px);
+  left: calc(100% + 10px);
+  transform: translateY(-100%);
+  color: white;
+  font-size: 1.3rem;
+  font-weight: bold;
+  z-index: 2;
+  white-space: nowrap;
+  background: transparent;
 }

@@ -15,8 +15,7 @@ function Game({ gameId, isAdmin }) {
       updateGame(gameId, { [teamKey]: value });
     }
   };
-
-  const setWinner = (teamKey) => {
+    const setWinner = (teamKey) => {
     if (isAdmin) {
       const teamName = game[teamKey] || "TBD";
       const currentWinner = game.winner;
@@ -24,7 +23,8 @@ function Game({ gameId, isAdmin }) {
       updateGame(gameId, { winner: newWinner });
     }
   };
-  const toggleLock = () => {
+
+    const toggleLock = () => {
     if (isAdmin) {
       updateGame(gameId, { locked: !game.locked });
     }
@@ -34,17 +34,20 @@ function Game({ gameId, isAdmin }) {
     const actualName = game[teamKey] || "TBD";
     const isTBD = actualName.trim().toUpperCase() === "TBD";
     const userCurrentPick = userPicks?.[gameId];
-    const isPicked = userCurrentPick === actualName;
-
-    const winnerName = game.winner?.trim();
+      const isPicked = userCurrentPick === actualName;
+      const winnerName = game.winner?.trim();
     const isCorrect = isPicked && actualName === winnerName;
     const isIncorrect = isPicked && winnerName && actualName !== winnerName;
     const isNeutral = isPicked && !winnerName;
 
     // Disable hover if the game is locked, user isn't admin, and team isn't their pick
-    const shouldDisableHover = game.locked && !isPicked && !isAdmin;
+    const shouldDisableHover = game.locked && !isAdmin;
 
-    const handleClick = () => {
+     const isLoserGame11or12 =
+    actualName.includes("Loser Game 11 (if first loss)") ||
+    actualName.includes("Loser Game 12 (if first loss)");
+      
+      const handleClick = () => {
       if (isAdmin || game.locked || isTBD || !user) return;
 
       const newPick = isPicked ? null : actualName;
@@ -52,8 +55,8 @@ function Game({ gameId, isAdmin }) {
     };
 
     return (
-      <div
-        className={`team
+	    <div
+	className={`team
           ${isCorrect ? "correct" : ""}
           ${isIncorrect ? "incorrect" : ""}
           ${isNeutral ? "picked" : ""}
@@ -69,17 +72,19 @@ function Game({ gameId, isAdmin }) {
             onChange={(e) => updateTeam(teamKey, e.target.value)}
           />
         ) : (
-          <span
-            className={`team-label ${game.winner === actualName ? "winner-highlight" : ""}`}
-          >
-              {actualName}
-	     </span>
+		<span
+		    className={`team-label ${game.winner === actualName ? "winner-highlight" : ""} ${
+                   isLoserGame11or12 ? "small-text" : ""
+          }`}
+        >
+            {actualName}
+          </span>
         )}
       </div>
     );
   };
 
-  return (
+    return (
     <div className="game-box">
       {renderTeam("team1")}
       <span className="vs">vs</span>
@@ -92,9 +97,9 @@ function Game({ gameId, isAdmin }) {
             Lock:{" "}
             <input
               type="checkbox"
-		checked={game.locked}
-	 onChange={toggleLock}
-            />
+              checked={game.locked}
+		onChange={toggleLock}
+		/>
           </label>
         </div>
       )}

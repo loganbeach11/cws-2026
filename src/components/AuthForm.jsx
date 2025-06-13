@@ -53,8 +53,8 @@ function AuthForm({ setUser, onAdminLogin }) {
     }
   };
 
-  return (
-    <div className="page-wrapper">
+    return (
+      <div className="page-wrapper">
       <div className="auth-form-container">
           <h2>{isRegistering ? "Register" : "Login"}</h2>
 	  <form onSubmit={handleSubmit} className="auth-form">
@@ -77,7 +77,7 @@ function AuthForm({ setUser, onAdminLogin }) {
             {isRegistering ? "Create Account" : "Log In"}
           </button>
           </form>
-	  <p>
+ 	  <p>
           {isRegistering ? (
             <>
               Already have an account?{" "}
@@ -95,7 +95,7 @@ function AuthForm({ setUser, onAdminLogin }) {
           )}
         </p>
       </div>
-    </div>
+	</div>
   );
 }
 
