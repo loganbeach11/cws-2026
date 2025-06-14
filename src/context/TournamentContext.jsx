@@ -86,10 +86,16 @@ await setDoc(userDocRef, { [gameId]: teamName }, { merge: true });
   }, [user]);
 
     const updateGame = async (id, updatedData) => {
-    const gameRef = doc(db, "tournament", "games", String(id));
-await setDoc(gameRef, updatedData, { merge: true });
+  const gamesDocRef = doc(db, "tournament", "games");
 
-  };
+  await setDoc(gamesDocRef, {
+    [id]: {
+      ...games[id],
+      ...updatedData,
+    },
+  }, { merge: true });
+};
+
 
     useEffect(() => {
   const updateAllUserScores = async () => {
