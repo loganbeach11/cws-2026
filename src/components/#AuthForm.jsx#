@@ -49,8 +49,7 @@ function AuthForm({ setUser, onAdminLogin }) {
         onAdminLogin();
       }
 
-	setUser(userCredential.user);
-	
+	setUser(userCredential.user
 // ✅ Pass full user object
     } catch (err) {
       console.error("Auth error:", err);

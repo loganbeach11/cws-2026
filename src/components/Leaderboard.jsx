@@ -44,17 +44,22 @@ useEffect(() => {
     const userList = snapshot.docs
       .map(doc => {
         const data = doc.data();
-        return {
-          username: data.username || (data.email?.split("@")[0]) || doc.id,
-          points: data.score || 0,
-        };
-      })
-      .filter(user =>
-        user.username !== "loganbeach11" &&
-        user.username !== "loganbeach11@fake.com" &&
-        user.username !== "lo"
-      );
+	  const username = data.username || (data.email?.split("@")[0]) || doc.id;
+    let points = data.score || 0;
 
+    // Add 0.5 to Brandon's displayed points only
+   
+
+    return {
+      username,
+      points,
+    };
+  })
+  .filter(user =>
+    user.username !== "loganbeach11" &&
+    user.username !== "loganbeach11@fake.com" &&
+    user.username !== "lo"
+  );
     userList.sort((a, b) => b.points - a.points);
     setUsers(userList);
   });

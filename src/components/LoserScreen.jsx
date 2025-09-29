@@ -36,7 +36,7 @@ export default function LoserScreen() {
           View Bracket
         </button>
 	  <p className="loser-taunt">
-        Congrats on your spectacular ability to lose like a pro! Don’t worry, even a broken clock is right twice a day — but you? Not so much. Better luck next time, or just give up now and save us all some trouble!
+              Congrats on your spectacular ability to lose like a pro! Don’t worry, even a broken clock is right twice a day — but you? Not so much. All jokes aside, thank you very much for playing and good luck next year!
       </p>
       </div>
     </div>

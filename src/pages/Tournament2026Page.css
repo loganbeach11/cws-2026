@@ -1,0 +1,96 @@
+.tourny-2026-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;   /* left area | center | right area */
+  align-items: start;
+  column-gap: 60px;                         /* we’ll handle inner spacing via panel widths */
+  max-width: 1200px;                     /* keep the whole row off the extreme edges */
+  padding: 0 24px;
+  margin: 24px auto 0 auto;              /* centered container */
+}
+
+/* Leaderboard column (center) — keep close to original size */
+.leaderboard-2026-wrap {
+  justify-self: center;   /* centers in the middle column */
+  flex: 0 0 auto;         /* no flex shrinking */
+  min-width: 480px;
+  max-width: 640px;
+  width: 560px;           /* preferred width similar to your original look */
+}
+.tourny-2026-panel {
+  background: #fff;
+  padding: 22px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  text-align: center;
+  justify-self: center;   /* key: centers panel in its side area */
+}
+
+/* Left box bigger */
+.tourny-2026-panel.past-bracket {
+  min-width: 280px;       /* wider per request */
+  max-width: 360px;
+  margin-top: 33px;
+}
+
+/* Right box wider */
+.tourny-2026-panel.past-winners {
+  min-width: 340px;       /* wider per request */
+  max-width: 420px;
+  margin-top: 33px;
+}
+
+/* Bigger titles */
+.tourny-2026-panel h3 {
+  margin: 0 0 14px 0;
+  font-weight: 800;
+  font-size: 1.45rem;     /* bigger */
+}
+
+/* Past Winners line — bold, bigger, single-line */
+.past-winners .winner-line {
+  white-space: nowrap;
+  font-weight: 800;
+  font-size: 1.25rem;     /* bigger line text */
+}
+.past-year-btn {
+  font-weight: 800;
+  font-size: 1.25rem;     /* bigger label */
+  padding: 16px 32px;     /* bigger button */
+  border-radius: 12px;
+  border: 2px solid #111;
+  box-shadow: 0 2px 6px rgba(0,0,0,.15);
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+}
+
+.past-year-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0,0,0,.18);
+  background-color: #e6f2ff !important;  /* light blue hover */
+}
+
+.past-winners .winner-link {
+  color: #0a66cc;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.past-winners .winner-link:hover {
+  color: #004a99;
+  text-decoration: underline;
+}
+
+
+/* Responsive: stack panels under leaderboard on narrow screens */
+@media (max-width: 900px) {
+  .tourny-2026-grid {
+    grid-template-columns: 1fr;          /* stack */
+    row-gap: 16px;
+  }
+  .leaderboard-2026-wrap,
+  .tourny-2026-panel {
+    justify-self: center;                 /* center each stacked block */
+    width: 100%;
+    max-width: 640px;
+  }
+}
