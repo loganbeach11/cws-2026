@@ -48,7 +48,9 @@ useEffect(() => {
     let points = data.score || 0;
 
     // Add 0.5 to Brandon's displayed points only
-   
+	  if (username === "Brandon_Beach_FTW") {
+             points += 0.5;
+           }
 
     return {
       username,
