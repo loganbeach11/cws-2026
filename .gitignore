@@ -1,3 +1,10 @@
 node_modules/
 .env
 .DS_Store
+# Add to .gitignore
+printf "\ndist/\n.firebase/\n" >> .gitignore
+git rm -r --cached dist .firebase
+git add .gitignore
+git commit -m "chore: ignore build and firebase cache"
+git push
+
