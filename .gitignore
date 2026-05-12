@@ -8,3 +8,4 @@ git add .gitignore
 git commit -m "chore: ignore build and firebase cache"
 git push
 
+node_modules/
