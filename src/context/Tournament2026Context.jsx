@@ -18,8 +18,10 @@ const Tournament2026Context = createContext();
 
 export const Tournament2026Provider = ({ children }) => {
   const [games, setGames] = useState({});
+  const [superRegionals, setSuperRegionals] = useState({});
   const [user, setUser] = useState(null);
   const [userPicks, setUserPicks] = useState({});
+  const [superRegionalPicks, setSuperRegionalPicks] = useState({});
   const [lockStatus, setLockStatus] = useState({});
   const [tournamentComplete, setTournamentComplete] = useState(false);
 
@@ -61,6 +63,135 @@ export const Tournament2026Provider = ({ children }) => {
     };
   }
 
+  const defaultSuperRegionals = {};
+  for (let i = 1; i <= 8; i++) {
+    defaultSuperRegionals[String(i)] = {
+      name: "TBD Super Regional",
+      team1: "TBD",
+      team2: "TBD",
+      winner: "",
+      locked: false,
+    };
+  }
+
+  const normalizePick = (value) => {
+    return (value || "").toString().trim().toLowerCase();
+  };
+
+  const calculateCwsScoreFromData = (picks, gamesData) => {
+    let score = 0;
+
+    Object.entries(picks || {}).forEach(([gameId, pick]) => {
+      const game = gamesData?.[gameId];
+
+      if (game?.winner && normalizePick(game.winner) === normalizePick(pick)) {
+        score += 1;
+      }
+    });
+
+    return score;
+  };
+
+  const calculateSuperRegionalScoreFromData = (picks, superRegionalsData) => {
+    let score = 0;
+
+    Object.entries(picks || {}).forEach(([regionId, pick]) => {
+      const region = superRegionalsData?.[regionId];
+
+      if (
+        region?.winner &&
+        normalizePick(region.winner) === normalizePick(pick)
+      ) {
+        score += 1;
+      }
+    });
+
+    return score;
+  };
+
+  /*
+    This is the ONE source of truth for 2026 scoring.
+
+    It directly reads the current Firestore state:
+    - tournament2026/games
+    - superRegionals2026/regions
+    - users2026
+    - userPicks2026
+    - superRegionalPicks2026
+
+    Then it writes the correct total to users2026/{uid}.score.
+  */
+  const recalculateAndSaveAllUserScores = async () => {
+    try {
+      const gamesSnap = await getDoc(doc(db, "tournament2026", "games"));
+      const superRegionalsSnap = await getDoc(
+        doc(db, "superRegionals2026", "regions")
+      );
+
+      const gamesData = gamesSnap.exists() ? gamesSnap.data() || {} : {};
+      const superRegionalsData = superRegionalsSnap.exists()
+        ? superRegionalsSnap.data() || {}
+        : {};
+
+      if (
+        Object.keys(gamesData).length === 0 ||
+        Object.keys(superRegionalsData).length === 0
+      ) {
+        return;
+      }
+
+      const usersSnapshot = await getDocs(collection(db, "users2026"));
+      const cwsPicksSnapshot = await getDocs(collection(db, "userPicks2026"));
+      const superRegionalPicksSnapshot = await getDocs(
+        collection(db, "superRegionalPicks2026")
+      );
+
+      const cwsPicksByUser = {};
+      cwsPicksSnapshot.forEach((pickDoc) => {
+        cwsPicksByUser[pickDoc.id] = pickDoc.data() || {};
+      });
+
+      const superRegionalPicksByUser = {};
+      superRegionalPicksSnapshot.forEach((pickDoc) => {
+        superRegionalPicksByUser[pickDoc.id] = pickDoc.data() || {};
+      });
+
+      const updates = usersSnapshot.docs.map(async (userDoc) => {
+        const uid = userDoc.id;
+        const userData = userDoc.data() || {};
+        const username = userData.username || uid;
+
+        const cwsPicks = cwsPicksByUser[uid] || {};
+        const srPicks = superRegionalPicksByUser[uid] || {};
+
+        const cwsScore = calculateCwsScoreFromData(cwsPicks, gamesData);
+        const superRegionalScore = calculateSuperRegionalScoreFromData(
+          srPicks,
+          superRegionalsData
+        );
+        const adjustment = getTiebreakerAdjustment(uid, username);
+
+        const totalScore = cwsScore + superRegionalScore + adjustment;
+        const currentScore = Number(userData.score ?? 0);
+
+        if (currentScore !== totalScore) {
+          await setDoc(
+            doc(db, "users2026", uid),
+            {
+              username,
+              score: totalScore,
+            },
+            { merge: true }
+          );
+        }
+      });
+
+      await Promise.all(updates);
+    } catch (error) {
+      console.error("Failed to recalculate 2026 scores:", error);
+    }
+  };
+
   // Subscribe to 2026 games doc; seed if missing or empty
   useEffect(() => {
     const gamesDocRef = doc(db, "tournament2026", "games");
@@ -75,16 +206,82 @@ export const Tournament2026Provider = ({ children }) => {
           try {
             await setDoc(gamesDocRef, defaultGames);
             setGames(defaultGames);
-          } catch (e) {
-            console.error("Failed to seed 2026 games:", e);
+          } catch (error) {
+            console.error("Failed to seed 2026 games:", error);
             setGames({});
           }
         } else {
           setGames(data);
+          recalculateAndSaveAllUserScores();
         }
       },
-      (err) => {
-        console.error("2026 games snapshot error:", err);
+      (error) => {
+        console.error("2026 games snapshot error:", error);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  // Subscribe to 2026 Super Regionals doc; seed if missing or empty
+  useEffect(() => {
+    const superRegionalsDocRef = doc(db, "superRegionals2026", "regions");
+
+    const unsubscribe = onSnapshot(
+      superRegionalsDocRef,
+      async (docSnap) => {
+        const data = docSnap.exists() ? docSnap.data() || {} : null;
+        const isMissingOrEmpty = !data || Object.keys(data).length === 0;
+
+        if (isMissingOrEmpty) {
+          try {
+            await setDoc(superRegionalsDocRef, defaultSuperRegionals);
+            setSuperRegionals(defaultSuperRegionals);
+          } catch (error) {
+            console.error("Failed to seed 2026 Super Regionals:", error);
+            setSuperRegionals({});
+          }
+        } else {
+          setSuperRegionals(data);
+          recalculateAndSaveAllUserScores();
+        }
+      },
+      (error) => {
+        console.error("2026 Super Regionals snapshot error:", error);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  // Recalculate when regular CWS picks change
+  useEffect(() => {
+    const picksCollectionRef = collection(db, "userPicks2026");
+
+    const unsubscribe = onSnapshot(
+      picksCollectionRef,
+      () => {
+        recalculateAndSaveAllUserScores();
+      },
+      (error) => {
+        console.error("2026 userPicks2026 snapshot error:", error);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  // Recalculate when Super Regional picks change
+  useEffect(() => {
+    const picksCollectionRef = collection(db, "superRegionalPicks2026");
+
+    const unsubscribe = onSnapshot(
+      picksCollectionRef,
+      () => {
+        recalculateAndSaveAllUserScores();
+      },
+      (error) => {
+        console.error("2026 superRegionalPicks2026 snapshot error:", error);
       }
     );
 
@@ -105,8 +302,8 @@ export const Tournament2026Provider = ({ children }) => {
           setTournamentComplete(false);
         }
       },
-      (err) => {
-        console.error("2026 tournament config snapshot error:", err);
+      (error) => {
+        console.error("2026 tournament config snapshot error:", error);
       }
     );
 
@@ -120,14 +317,33 @@ export const Tournament2026Provider = ({ children }) => {
 
   // Auth state
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser || null);
+
+      if (firebaseUser) {
+        const user2026Ref = doc(db, "users2026", firebaseUser.uid);
+        const user2026Snap = await getDoc(user2026Ref);
+
+        if (!user2026Snap.exists()) {
+          await setDoc(
+            user2026Ref,
+            {
+              username:
+                firebaseUser.displayName || firebaseUser.email || firebaseUser.uid,
+              score: 0,
+            },
+            { merge: true }
+          );
+        }
+
+        recalculateAndSaveAllUserScores();
+      }
     });
 
     return () => unsubscribe();
   }, []);
 
-  // Subscribe to this user's 2026 picks
+  // Keep this user's local CWS picks synced for UI highlighting
   useEffect(() => {
     if (!user) {
       setUserPicks({});
@@ -136,9 +352,39 @@ export const Tournament2026Provider = ({ children }) => {
 
     const userDocRef = doc(db, "userPicks2026", user.uid);
 
-    const unsubscribe = onSnapshot(userDocRef, (docSnap) => {
-      setUserPicks(docSnap.exists() ? docSnap.data() : {});
-    });
+    const unsubscribe = onSnapshot(
+      userDocRef,
+      (docSnap) => {
+        setUserPicks(docSnap.exists() ? docSnap.data() : {});
+      },
+      (error) => {
+        console.error("2026 user picks snapshot error:", error);
+        setUserPicks({});
+      }
+    );
+
+    return () => unsubscribe();
+  }, [user]);
+
+  // Keep this user's local Super Regional picks synced for UI highlighting
+  useEffect(() => {
+    if (!user) {
+      setSuperRegionalPicks({});
+      return;
+    }
+
+    const superRegionalPicksRef = doc(db, "superRegionalPicks2026", user.uid);
+
+    const unsubscribe = onSnapshot(
+      superRegionalPicksRef,
+      (docSnap) => {
+        setSuperRegionalPicks(docSnap.exists() ? docSnap.data() : {});
+      },
+      (error) => {
+        console.error("2026 Super Regional picks snapshot error:", error);
+        setSuperRegionalPicks({});
+      }
+    );
 
     return () => unsubscribe();
   }, [user]);
@@ -149,16 +395,33 @@ export const Tournament2026Provider = ({ children }) => {
     if (teamName === null) {
       await updateDoc(userDocRef, { [gameId]: deleteField() }).catch(
         async () => {
-          // If doc doesn't exist yet, nothing to delete — ensure doc exists to avoid future errors
           await setDoc(userDocRef, {});
         }
       );
     } else {
       await setDoc(userDocRef, { [gameId]: teamName }, { merge: true });
     }
+
+    await recalculateAndSaveAllUserScores();
   };
 
-  // Admin/general update to a specific game field(s) in 2026 doc
+  const saveSuperRegionalPick = async (userId, regionId, teamName) => {
+    const userDocRef = doc(db, "superRegionalPicks2026", userId);
+
+    if (teamName === null) {
+      await updateDoc(userDocRef, { [regionId]: deleteField() }).catch(
+        async () => {
+          await setDoc(userDocRef, {});
+        }
+      );
+    } else {
+      await setDoc(userDocRef, { [regionId]: teamName }, { merge: true });
+    }
+
+    await recalculateAndSaveAllUserScores();
+  };
+
+  // Admin/general update to a specific CWS game field(s) in 2026 doc
   const updateGame = async (id, updatedData) => {
     const gamesDocRef = doc(db, "tournament2026", "games");
 
@@ -172,119 +435,27 @@ export const Tournament2026Provider = ({ children }) => {
       },
       { merge: true }
     );
+
+    await recalculateAndSaveAllUserScores();
   };
 
-  const calculateRawScore = (picks) => {
-    let rawScore = 0;
+  // Admin/general update to a specific Super Regional field(s) in 2026 doc
+  const updateSuperRegional = async (id, updatedData) => {
+    const superRegionalsDocRef = doc(db, "superRegionals2026", "regions");
 
-    Object.entries(picks || {}).forEach(([gameId, pick]) => {
-      const game = games[gameId];
+    await setDoc(
+      superRegionalsDocRef,
+      {
+        [id]: {
+          ...superRegionals[id],
+          ...updatedData,
+        },
+      },
+      { merge: true }
+    );
 
-      if (game?.winner && game.winner === pick) {
-        rawScore += 1;
-      }
-    });
-
-    return rawScore;
+    await recalculateAndSaveAllUserScores();
   };
-
-  const calculateAdjustedScore = (uid, username, picks) => {
-    const rawScore = calculateRawScore(picks);
-    const adjustment = getTiebreakerAdjustment(uid, username);
-
-    return rawScore + adjustment;
-  };
-
-  // Recalculate & persist 2026 scores
-  useEffect(() => {
-    const updateAllUserScores = async () => {
-      try {
-        const usersSnapshot = await getDocs(collection(db, "users2026"));
-        const picksSnapshot = await getDocs(collection(db, "userPicks2026"));
-
-        const picksData = {};
-        picksSnapshot.forEach((d) => {
-          picksData[d.id] = d.data();
-        });
-
-        for (const userDoc of usersSnapshot.docs) {
-          const uid = userDoc.id;
-          const current = userDoc.data();
-          const currentUsername = current.username || uid;
-          const currentUserPicks = picksData[uid] || {};
-
-          const adjustedScore = calculateAdjustedScore(
-            uid,
-            currentUsername,
-            currentUserPicks
-          );
-
-          const userRef = doc(db, "users2026", uid);
-
-          if (current.score !== adjustedScore) {
-            try {
-              await updateDoc(userRef, {
-                username: currentUsername,
-                score: adjustedScore,
-              });
-            } catch {
-              await setDoc(
-                userRef,
-                {
-                  username: currentUsername,
-                  score: adjustedScore,
-                },
-                { merge: true }
-              );
-            }
-          }
-        }
-      } catch (e) {
-        console.error("Failed to update all 2026 user scores:", e);
-      }
-    };
-
-    if (Object.keys(games).length > 0) {
-      updateAllUserScores();
-    }
-  }, [games]);
-
-  // Keep this user's 2026 score updated on their doc
-  useEffect(() => {
-    const syncMyScore = async () => {
-      if (!user || !games || Object.keys(games).length === 0) return;
-
-      try {
-        const userRef = doc(db, "users2026", user.uid);
-        const userSnap = await getDoc(userRef);
-        const currentData = userSnap.exists() ? userSnap.data() : {};
-
-        const currentUsername =
-          currentData.username || user.displayName || user.email || user.uid;
-
-        const adjustedScore = calculateAdjustedScore(
-          user.uid,
-          currentUsername,
-          userPicks
-        );
-
-        if (currentData.score !== adjustedScore) {
-          await setDoc(
-            userRef,
-            {
-              username: currentUsername,
-              score: adjustedScore,
-            },
-            { merge: true }
-          );
-        }
-      } catch (e) {
-        console.error("Failed to sync current 2026 user score:", e);
-      }
-    };
-
-    syncMyScore();
-  }, [games, userPicks, user]);
 
   return (
     <Tournament2026Context.Provider
@@ -293,12 +464,19 @@ export const Tournament2026Provider = ({ children }) => {
         setGames,
         updateGame,
 
+        superRegionals,
+        setSuperRegionals,
+        updateSuperRegional,
+
         user,
         currentUser: user,
         setUser,
 
         saveUserPick,
         userPicks,
+
+        saveSuperRegionalPick,
+        superRegionalPicks,
 
         lockStatus,
         setLockStatus,

@@ -8,6 +8,7 @@ import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 import "./Tournament2026Page.css";
 import { useNavigate } from "react-router-dom";
+import SuperRegionals2026 from "../components/SuperRegionals2026";
 
 function Tournament2026Page({ isAdmin = false }) {
   const navigate = useNavigate();
@@ -17,50 +18,74 @@ function Tournament2026Page({ isAdmin = false }) {
   const [userScore, setUserScore] = useState(0);
   const [tournamentComplete, setTournamentComplete] = useState(false);
 
-  // Mirror 2025 header behavior; ensure a users2026 doc exists for leaderboard
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
-      setUser(firebaseUser || null);
+ // Mirror 2025 header behavior; ensure a users2026 doc exists for leaderboard
+// Then live-listen to users2026/{uid} so the header score updates immediately.
+useEffect(() => {
+  let unsubscribeUserDoc = null;
 
-      if (firebaseUser) {
-        // Prefer username from 2026 doc; fall back to old users doc or auth values
-        const user2026Ref = doc(db, "users2026", firebaseUser.uid);
-        const user2026Snap = await getDoc(user2026Ref);
-        const u2026 = user2026Snap.exists() ? user2026Snap.data() : null;
+  const unsubAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+    setUser(firebaseUser || null);
 
-        const userRef = doc(db, "users", firebaseUser.uid);
-        const userSnap = await getDoc(userRef);
-        const u = userSnap.exists() ? userSnap.data() : {};
+    if (unsubscribeUserDoc) {
+      unsubscribeUserDoc();
+      unsubscribeUserDoc = null;
+    }
 
-        const username = (
-          u2026?.username ||
-          u.username ||
-          firebaseUser.displayName ||
-          firebaseUser.email ||
-          ""
-        ).toString();
+    if (firebaseUser) {
+      const user2026Ref = doc(db, "users2026", firebaseUser.uid);
+      const user2026Snap = await getDoc(user2026Ref);
 
-        const score = Number(u2026?.score ?? 0);
+      const userRef = doc(db, "users", firebaseUser.uid);
+      const userSnap = await getDoc(userRef);
+      const oldUserData = userSnap.exists() ? userSnap.data() : {};
 
-        // Ensure users2026 doc exists so the 2026 leaderboard has a row to show
-        if (!user2026Snap.exists()) {
-          await setDoc(
-            user2026Ref,
-            { username, score: 0 },
-            { merge: true }
-          );
-        }
+      const current2026Data = user2026Snap.exists()
+        ? user2026Snap.data()
+        : {};
 
-        setUsernameDisplay(username);
-        setUserScore(score);
-      } else {
-        setUsernameDisplay("");
-        setUserScore(0);
+      const username = (
+        current2026Data.username ||
+        oldUserData.username ||
+        firebaseUser.displayName ||
+        firebaseUser.email ||
+        ""
+      ).toString();
+
+      if (!user2026Snap.exists()) {
+        await setDoc(
+          user2026Ref,
+          {
+            username,
+            score: 0,
+          },
+          { merge: true }
+        );
       }
-    });
 
-    return () => unsub();
-  }, []);
+      unsubscribeUserDoc = onSnapshot(user2026Ref, (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data() || {};
+          setUsernameDisplay(data.username || username);
+          setUserScore(Number(data.score ?? 0));
+        } else {
+          setUsernameDisplay(username);
+          setUserScore(0);
+        }
+      });
+    } else {
+      setUsernameDisplay("");
+      setUserScore(0);
+    }
+  });
+
+  return () => {
+    unsubAuth();
+
+    if (unsubscribeUserDoc) {
+      unsubscribeUserDoc();
+    }
+  };
+}, []);
 
   // Subscribe to 2026 tournament complete flag
   useEffect(() => {
@@ -141,6 +166,15 @@ function Tournament2026Page({ isAdmin = false }) {
       <div style={{ flex: 1 }}>
         <Tournament2026Provider>
           {/* Bracket first, full width */}
+          <SuperRegionals2026 isAdmin={isAdmin} />
+          <div className="omaha-final-eight-divider">
+            <div className="omaha-divider-line"></div>
+            <div className="omaha-divider-text">
+              <span className="omaha-divider-main">Omaha: Final 8</span>
+              <span className="omaha-divider-sub">Men&apos;s College World Series Bracket</span>
+            </div>
+            <div className="omaha-divider-line"></div>
+          </div>
           <Bracket2026 isAdmin={isAdmin} />
 
           {/* Grid: left panel, leaderboard, right panel */}

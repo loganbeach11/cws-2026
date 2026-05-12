@@ -94,3 +94,75 @@
     max-width: 640px;
   }
 }
+
+/* Omaha Final 8 separator between Super Regionals and main bracket */
+.omaha-final-eight-divider {
+  width: 100%;
+  margin: 28px auto 8px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 0 40px;
+  box-sizing: border-box;
+}
+
+.omaha-divider-line {
+  height: 3px;
+  flex: 1;
+  background: white;
+  border-radius: 999px;
+}
+
+.omaha-divider-text {
+  background: white;
+  color: navy;
+  border-radius: 999px;
+  padding: 10px 24px;
+  text-align: center;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  flex-shrink: 0;
+}
+
+.omaha-divider-main {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.omaha-divider-sub {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #333;
+  margin-top: 2px;
+}
+
+@media (max-width: 700px) {
+  .omaha-final-eight-divider {
+    width: 100%;
+    padding: 0 10px;
+    gap: 8px;
+    margin-top: 22px;
+  }
+
+  .omaha-divider-line {
+    display: none;
+  }
+
+  .omaha-divider-text {
+    width: 100%;
+    border-radius: 14px;
+    padding: 10px 12px;
+  }
+
+  .omaha-divider-main {
+    font-size: 1.15rem;
+  }
+
+  .omaha-divider-sub {
+    font-size: 0.72rem;
+  }
+}

@@ -1,0 +1,168 @@
+.super-regionals-section {
+    width: min(1180px, calc(100% - 32px));
+    margin: 30px auto 10px auto;
+    padding: 18px;
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  }
+  
+  .super-regionals-header {
+    text-align: center;
+    margin-bottom: 18px;
+  }
+  
+  .super-regionals-header h2 {
+    margin: 0;
+    color: navy;
+    font-size: 1.6rem;
+    font-weight: 800;
+  }
+  
+  .super-regionals-header p {
+    margin: 6px auto 0 auto;
+    color: #333;
+    font-size: 0.95rem;
+  }
+  
+  .super-regionals-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+  }
+  
+  .super-regional-card {
+    border: 2px solid #d0d0d0;
+    border-radius: 12px;
+    background: #ffffff;
+    padding: 12px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+  }
+  
+  .super-regional-card-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  
+  .super-regional-card-header h3 {
+    margin: 0;
+    color: navy;
+    font-size: 1rem;
+    font-weight: 800;
+  }
+  
+  .super-regional-status {
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  
+  .open-status {
+    color: green;
+  }
+  
+  .locked-status {
+    color: red;
+  }
+  
+  .super-regional-teams {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .super-regional-team {
+    min-height: 35px;
+  }
+  
+  .super-regional-vs {
+    font-weight: 800;
+    color: #555;
+    font-size: 1rem;
+    margin: 0;
+  }
+  
+  .super-regional-admin-controls {
+    margin-top: 10px;
+  }
+  
+  .super-regional-winner-buttons {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 5px;
+    margin-bottom: 8px;
+  }
+  
+  .super-regional-winner-buttons button,
+  .super-regional-lock-button {
+    padding: 5px 6px;
+    border-radius: 6px;
+    border: 1px solid #bbb;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  
+  .super-regional-winner-buttons button {
+    background: #f5f5f5;
+    color: #222;
+  }
+  
+  .super-regional-winner-buttons button:hover {
+    background: #e8e8e8;
+  }
+  
+  .super-regional-lock-button {
+    width: 100%;
+    color: white;
+    border: none;
+  }
+  
+  .unlocked-button {
+    background: #15803d;
+  }
+  
+  .unlocked-button:hover {
+    background: #166534;
+  }
+  
+  .locked-button {
+    background: #dc2626;
+  }
+  
+  .locked-button:hover {
+    background: #b91c1c;
+  }
+  
+  @media (max-width: 700px) {
+    .super-regionals-section {
+      width: calc(100% - 20px);
+      padding: 14px;
+      margin-top: 20px;
+    }
+  
+    .super-regionals-grid {
+      grid-template-columns: 1fr;
+    }
+  
+    .super-regionals-header h2 {
+      font-size: 1.25rem;
+    }
+  
+    .super-regionals-header p {
+      font-size: 0.85rem;
+    }
+  }
+  .super-regional-name-input {
+    width: 100%;
+    text-align: center;
+    color: navy;
+    font-size: 1rem;
+    font-weight: 800;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 4px 6px;
+    box-sizing: border-box;
+  }
