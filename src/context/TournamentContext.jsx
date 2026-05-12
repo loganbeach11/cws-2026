@@ -43,7 +43,6 @@ export const TournamentProvider = ({ children, viewUserId = null }) => {
     };
   }
 
-
     // Load/seed games (2025)
   useEffect(() => {
     const gamesDocRef = doc(db, "tournament", "games");
@@ -125,14 +124,6 @@ export const TournamentProvider = ({ children, viewUserId = null }) => {
 
         let adjusted = raw;
 
-        // ---- If you want Firestore to store Brandon’s +0.5, UNCOMMENT below ----
-        // const unameLower = username.toLowerCase();
-        // const emailLower = (udata.email || "").toString().trim().toLowerCase();
-        // const isBrandon =
-        //   unameLower === "brandon_beach_ftw" || emailLower === "brandon_beach_ftw@fake.com";
-          // if (isBrandon) adjusted += 0.5;
-	  // -------------------------------------------------------------------------
-
         if (udata.score !== adjusted) {
           const userRef = doc(db, "users", uid);
           try {
@@ -165,18 +156,8 @@ export const TournamentProvider = ({ children, viewUserId = null }) => {
 
       let adjusted = raw;
 
-      // ---- If you also want Brandon’s +0.5 applied here, UNCOMMENT below ----
-      // const uNameLower = (username || "").toString().trim().toLowerCase();
-      // const uEmailLower = (current.email || user.email || "")
-	  //   .toString()
-	  //   .trim()
-      //   .toLowerCase();
-      // const isBrandon =
-      //   uNameLower === "brandon_beach_ftw" || uEmailLower === "brandon_beach_ftw@fake.com";
-      // if (isBrandon) adjusted += 0.5;
-      // -----------------------------------------------------------------------
 
-      if (current.score !== adjusted) {
+      if  (current.score !== adjusted) {
         await setDoc(userRef, { username, score: adjusted }, { merge: true });
       }
     };

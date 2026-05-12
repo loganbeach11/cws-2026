@@ -317,3 +317,48 @@
   white-space: nowrap;
   background: transparent;
 }
+
+/* =========================================================
+   Locked result hover fix
+   Keeps correct/incorrect locked teams from changing shade
+   on 2025 bracket, Brandon 2025 bracket, and 2026 bracket.
+   ========================================================= */
+
+/* Correct pick stays the exact same green on hover */
+.team.correct,
+.team.correct:hover,
+.team.correct.locked,
+.team.correct.locked:hover {
+  background-color: #d4edda !important;
+  color: green !important;
+  font-weight: bold;
+  cursor: default !important;
+}
+
+/* Incorrect pick stays the exact same red on hover */
+.team.incorrect,
+.team.incorrect:hover,
+.team.incorrect.locked,
+.team.incorrect.locked:hover {
+  background-color: #f8d7da !important;
+  color: red !important;
+  font-weight: bold;
+  cursor: default !important;
+}
+
+/* Picked but not yet graded stays blue on hover */
+.team.picked,
+.team.picked:hover,
+.team.picked.locked,
+.team.picked.locked:hover {
+  background-color: #cce5ff !important;
+  font-weight: bold;
+  cursor: default !important;
+}
+
+/* Locked teams should not show normal hover behavior */
+.team.locked:hover {
+  filter: none !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+}

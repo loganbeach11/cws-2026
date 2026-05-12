@@ -5,7 +5,6 @@ import AuthForm from "./components/AuthForm";
 import Bracket from "./components/Bracket";
 import Leaderboard from "./components/Leaderboard";
 import Tournament2026Page from "./pages/Tournament2026Page";
-import Admin2026Page from "./pages/Admin2026Page";
 import WinnerScreen from "./components/WinnerScreen";
 import LoserScreen from "./components/LoserScreen";
 import Brandon2025BracketPage from "./pages/Brandon2025BracketPage";
@@ -152,8 +151,8 @@ function App() {
           element={user ? <Tournament2026Page isAdmin={isAdmin} /> : <Navigate to="/" />}
         />
         <Route
-          path="/admin2026" //
-          element={isAdmin ? <Admin2026Page /> : <Navigate to="/" />}
+          path="/admin2026"
+          element={user ? <Navigate to="/tournament2026" replace /> : <Navigate to="/" />}
         />
 	  <Route
   path="/tournament2025/brandon"
