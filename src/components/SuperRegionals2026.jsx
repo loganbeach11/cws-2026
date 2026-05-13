@@ -82,11 +82,20 @@ function SuperRegionals2026({ isAdmin }) {
       ? superRegionals
       : defaultSuperRegionals;
 
+  const normalizePick = (value) => {
+    return (value || "").toString().trim().toLowerCase();
+  };
+
   const handleTeamUpdate = async (regionId, teamKey, value) => {
     if (!isAdmin || !updateSuperRegional) return;
 
+    const region = displayedSuperRegionals[regionId];
+    const wasWinner =
+      normalizePick(region?.winner) === normalizePick(region?.[teamKey]);
+
     await updateSuperRegional(regionId, {
       [teamKey]: value,
+      ...(wasWinner ? { winner: "" } : {}),
     });
   };
 
@@ -135,7 +144,8 @@ function SuperRegionals2026({ isAdmin }) {
     }
 
     const currentPick = superRegionalPicks?.[regionId];
-    const newPick = currentPick === actualName ? null : actualName;
+    const newPick =
+      normalizePick(currentPick) === normalizePick(actualName) ? null : actualName;
 
     await saveSuperRegionalPick(user.uid, regionId, newPick);
   };
@@ -146,14 +156,40 @@ function SuperRegionals2026({ isAdmin }) {
     const isTBD = actualName.trim().toUpperCase() === "TBD";
 
     const userCurrentPick = superRegionalPicks?.[regionId];
-    const isPicked = userCurrentPick === actualName;
+    const isPicked =
+      normalizePick(userCurrentPick) === normalizePick(actualName);
 
-    const winnerName = region?.winner?.trim();
-    const isCorrect = isPicked && winnerName && actualName === winnerName;
-    const isIncorrect = isPicked && winnerName && actualName !== winnerName;
-    const isNeutral = isPicked && !winnerName;
+    const winnerName = region?.winner?.trim() || "";
+    const normalizedWinner = normalizePick(winnerName);
+
+    const currentTeamNames = [region?.team1, region?.team2].map((team) =>
+      normalizePick(team)
+    );
+
+    const hasWinner =
+      Boolean(winnerName) &&
+      normalizedWinner !== "tbd" &&
+      currentTeamNames.includes(normalizedWinner);
+
+    const isActualWinner =
+      hasWinner && normalizePick(actualName) === normalizedWinner;
+
+    const isCorrect = isPicked && isActualWinner;
+    const isIncorrect = isPicked && hasWinner && !isActualWinner;
+    const isNeutral = isPicked && !hasWinner;
+
+    const hasUserPickedThisRegion = Boolean(userCurrentPick);
+    const isWinnerNotPicked =
+      hasWinner && isActualWinner && hasUserPickedThisRegion && !isPicked;
 
     const shouldDisableHover = region?.locked && !isAdmin;
+
+    const getResultIcon = () => {
+      if (isCorrect) return "✅";
+      if (isIncorrect) return "❌";
+      if (isWinnerNotPicked) return "🏆";
+      return "";
+    };
 
     return (
       <div
@@ -161,6 +197,7 @@ function SuperRegionals2026({ isAdmin }) {
         className={`team super-regional-team
           ${isCorrect ? "correct" : ""}
           ${isIncorrect ? "incorrect" : ""}
+          ${isWinnerNotPicked ? "winner-not-picked" : ""}
           ${isNeutral ? "picked" : ""}
           ${isTBD && !isAdmin ? "disabled" : ""}
           ${shouldDisableHover ? "locked" : ""}
@@ -170,7 +207,9 @@ function SuperRegionals2026({ isAdmin }) {
         {isAdmin ? (
           <input
             className={`admin-input ${
-              region?.winner === actualName ? "winner-highlight" : ""
+              hasWinner && normalizePick(region?.winner) === normalizePick(actualName)
+                ? "winner-highlight"
+                : ""
             }`}
             value={actualName}
             onChange={(e) => handleTeamUpdate(regionId, teamKey, e.target.value)}
@@ -179,9 +218,14 @@ function SuperRegionals2026({ isAdmin }) {
         ) : (
           <span
             className={`team-label ${
-              region?.winner === actualName ? "winner-highlight" : ""
+              hasWinner && normalizePick(region?.winner) === normalizePick(actualName)
+                ? "winner-highlight"
+                : ""
             }`}
           >
+            {getResultIcon() && (
+              <span className="result-icon">{getResultIcon()}</span>
+            )}
             {actualName}
           </span>
         )}
@@ -195,8 +239,8 @@ function SuperRegionals2026({ isAdmin }) {
         <h2>Road to Omaha: Super Regional Picks</h2>
         <p>
           Pick the 8 teams you think will punch their ticket to Omaha. Each
-          correct pick will be worth 1 point. All Super Regional picks will be locked 
-          on June 5th at x:xx pm.
+          correct pick will be worth 1 point. All Super Regional picks will be
+          locked on June 5th at x:xx pm.
         </p>
       </div>
 

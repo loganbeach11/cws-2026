@@ -159,7 +159,7 @@ function MyPicksSummary2026() {
         </div>
 
         <div className="summary-pill">
-          <span className="summary-pill-label">Supers</span>
+          <span className="summary-pill-label">Super Regionals</span>
           <span className="summary-pill-value">
             {summary.superRegionalRecord.correct}/
             {summary.superRegionalRecord.locked}

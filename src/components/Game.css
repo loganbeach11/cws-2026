@@ -11,19 +11,19 @@
 }
 
 .team {
-    height: 35px;
-  display: flex;                 /* enables flex layout */
-  align-items: center;          /* vertically center content */
-  justify-content: center;      /* horizontally center content */
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 4px 2px;
   margin: 2px 0;
   border-radius: 4px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, border-color 0.2s;
   width: 100%;
   box-sizing: border-box;
+  border: 2px solid transparent;
 }
-
 
 .team:hover {
   background-color: #eef;
@@ -50,11 +50,28 @@
   font-weight: bold;
 }
 
-/* Prevent hover from overriding correct/incorrect background */
-.team.correct:hover,
+/* Actual winner when user's pick was wrong */
+.team.winner-not-picked {
+  background-color: #fff7d6;
+  border-color: #d4a017;
+  font-weight: bold;
+}
+
+/* Prevent hover from overriding result backgrounds */
+.team.correct:hover {
+  background-color: #b6f7b0 !important;
+  cursor: default;
+}
+
 .team.incorrect:hover {
-  background-color: inherit;
-  cursor: default !important;
+  background-color: #f7b0b0 !important;
+  cursor: default;
+}
+
+.team.winner-not-picked:hover {
+  background-color: #fff4cc !important;
+  border-color: #d4a017;
+  cursor: default;
 }
 
 .vs {
@@ -66,6 +83,7 @@
 .admin-controls {
   margin-top: 8px;
 }
+
 .admin-controls button {
   margin: 4px;
   padding: 4px 8px;
@@ -93,6 +111,7 @@ input.winner-highlight {
   border: 2px solid #339af0;
   font-weight: bold;
 }
+
 span.winner-highlight {
   background: none;
   border: none;
@@ -119,41 +138,50 @@ span.winner-highlight {
 .team.picked:hover {
   background-color: #cce5ff;
 }
-/* Lock in background for correct/incorrect even on hover */
-.team.correct:hover,
-.team.incorrect:hover {
-  background-color: #b6f7b0 !important; /* green */
-  cursor: default;
-}
 
-.team.incorrect:hover {
-  background-color: #f7b0b0 !important; /* red */
-  cursor: default;
-}
 /* Prevent hover effect for locked games */
 .team.disabled:hover {
   background-color: inherit;
   cursor: default;
 }
+
 .team.locked:hover {
   background-color: inherit;
   cursor: default !important;
 }
 
+.team.locked.correct:hover {
+  background-color: #b6f7b0 !important;
+}
+
+.team.locked.incorrect:hover {
+  background-color: #f7b0b0 !important;
+}
+
+.team.locked.winner-not-picked:hover {
+  background-color: #fff4cc !important;
+}
+
 .team-label {
   display: block;
-  width: 100%;               /* ✅ fills full button width */
-  padding: 0 0;            /* small left/right spacing */
+  width: 100%;
+  padding: 0 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: center;
   line-height: normal;
-  box-sizing: border-box;    /* include padding in width */
+  box-sizing: border-box;
   font-size: 1.1em;
 }
 
 /* Smaller font size for "Loser Game 11/12 (if first loss)" */
 .team-label.small-text {
-  font-size: 0.7em; /* adjust this size as you prefer */
+  font-size: 0.7em;
+}
+
+.result-icon {
+  display: inline-block;
+  margin-right: 4px;
+  font-size: 0.85em;
 }

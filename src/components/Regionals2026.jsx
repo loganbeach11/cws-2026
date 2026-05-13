@@ -31,7 +31,13 @@ function Regionals2026({ isAdmin }) {
     Use defaultRegionals as fallback so the visual section never disappears.
   */
   const displayedRegionals =
-    regionals && Object.keys(regionals).length > 0 ? regionals : defaultRegionals;
+    regionals && Object.keys(regionals).length > 0
+      ? regionals
+      : defaultRegionals;
+
+  const normalizePick = (value) => {
+    return (value || "").toString().trim().toLowerCase();
+  };
 
   const handleNameUpdate = async (regionalId, value) => {
     if (!isAdmin || !updateRegional) return;
@@ -44,8 +50,13 @@ function Regionals2026({ isAdmin }) {
   const handleTeamUpdate = async (regionalId, teamKey, value) => {
     if (!isAdmin || !updateRegional) return;
 
+    const regional = displayedRegionals[regionalId];
+    const wasWinner =
+      normalizePick(regional?.winner) === normalizePick(regional?.[teamKey]);
+
     await updateRegional(regionalId, {
       [teamKey]: value,
+      ...(wasWinner ? { winner: "" } : {}),
     });
   };
 
@@ -86,7 +97,10 @@ function Regionals2026({ isAdmin }) {
     }
 
     const currentPick = regionalPicks?.[regionalId];
-    const newPick = currentPick === actualName ? null : actualName;
+    const newPick =
+      normalizePick(currentPick) === normalizePick(actualName)
+        ? null
+        : actualName;
 
     await saveRegionalPick(user.uid, regionalId, newPick);
   };
@@ -97,14 +111,43 @@ function Regionals2026({ isAdmin }) {
     const isTBD = actualName.trim().toUpperCase() === "TBD";
 
     const userCurrentPick = regionalPicks?.[regionalId];
-    const isPicked = userCurrentPick === actualName;
+    const isPicked =
+      normalizePick(userCurrentPick) === normalizePick(actualName);
 
-    const winnerName = regional?.winner?.trim();
-    const isCorrect = isPicked && winnerName && actualName === winnerName;
-    const isIncorrect = isPicked && winnerName && actualName !== winnerName;
-    const isNeutral = isPicked && !winnerName;
+    const winnerName = regional?.winner?.trim() || "";
+    const normalizedWinner = normalizePick(winnerName);
+
+    const currentTeamNames = [
+      regional?.team1,
+      regional?.team2,
+      regional?.team3,
+      regional?.team4,
+    ].map((team) => normalizePick(team));
+
+    const hasWinner =
+      Boolean(winnerName) &&
+      normalizedWinner !== "tbd" &&
+      currentTeamNames.includes(normalizedWinner);
+
+    const isActualWinner =
+      hasWinner && normalizePick(actualName) === normalizedWinner;
+
+    const isCorrect = isPicked && isActualWinner;
+    const isIncorrect = isPicked && hasWinner && !isActualWinner;
+    const isNeutral = isPicked && !hasWinner;
+
+    const hasUserPickedThisRegional = Boolean(userCurrentPick);
+    const isWinnerNotPicked =
+      hasWinner && isActualWinner && hasUserPickedThisRegional && !isPicked;
 
     const shouldDisableHover = regional?.locked && !isAdmin;
+
+    const getResultIcon = () => {
+      if (isCorrect) return "✅";
+      if (isIncorrect) return "❌";
+      if (isWinnerNotPicked) return "🏆";
+      return "";
+    };
 
     return (
       <div
@@ -112,6 +155,7 @@ function Regionals2026({ isAdmin }) {
         className={`team regional-team
           ${isCorrect ? "correct" : ""}
           ${isIncorrect ? "incorrect" : ""}
+          ${isWinnerNotPicked ? "winner-not-picked" : ""}
           ${isNeutral ? "picked" : ""}
           ${isTBD && !isAdmin ? "disabled" : ""}
           ${shouldDisableHover ? "locked" : ""}
@@ -121,7 +165,10 @@ function Regionals2026({ isAdmin }) {
         {isAdmin ? (
           <input
             className={`admin-input ${
-              regional?.winner === actualName ? "winner-highlight" : ""
+              hasWinner &&
+              normalizePick(regional?.winner) === normalizePick(actualName)
+                ? "winner-highlight"
+                : ""
             }`}
             value={actualName}
             onChange={(e) =>
@@ -140,9 +187,15 @@ function Regionals2026({ isAdmin }) {
         ) : (
           <span
             className={`team-label ${
-              regional?.winner === actualName ? "winner-highlight" : ""
+              hasWinner &&
+              normalizePick(regional?.winner) === normalizePick(actualName)
+                ? "winner-highlight"
+                : ""
             }`}
           >
+            {getResultIcon() && (
+              <span className="result-icon">{getResultIcon()}</span>
+            )}
             {actualName}
           </span>
         )}
