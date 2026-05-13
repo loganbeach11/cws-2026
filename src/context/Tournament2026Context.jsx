@@ -18,10 +18,15 @@ const Tournament2026Context = createContext();
 
 export const Tournament2026Provider = ({ children }) => {
   const [games, setGames] = useState({});
+  const [regionals, setRegionals] = useState({});
   const [superRegionals, setSuperRegionals] = useState({});
+
   const [user, setUser] = useState(null);
+
   const [userPicks, setUserPicks] = useState({});
+  const [regionalPicks, setRegionalPicks] = useState({});
   const [superRegionalPicks, setSuperRegionalPicks] = useState({});
+
   const [lockStatus, setLockStatus] = useState({});
   const [tournamentComplete, setTournamentComplete] = useState(false);
 
@@ -63,6 +68,19 @@ export const Tournament2026Provider = ({ children }) => {
     };
   }
 
+  const defaultRegionals = {};
+  for (let i = 1; i <= 16; i++) {
+    defaultRegionals[String(i)] = {
+      name: "TBD Regional",
+      team1: "TBD",
+      team2: "TBD",
+      team3: "TBD",
+      team4: "TBD",
+      winner: "",
+      locked: false,
+    };
+  }
+
   const defaultSuperRegionals = {};
   for (let i = 1; i <= 8; i++) {
     defaultSuperRegionals[String(i)] = {
@@ -92,6 +110,23 @@ export const Tournament2026Provider = ({ children }) => {
     return score;
   };
 
+  const calculateRegionalScoreFromData = (picks, regionalsData) => {
+    let score = 0;
+
+    Object.entries(picks || {}).forEach(([regionalId, pick]) => {
+      const regional = regionalsData?.[regionalId];
+
+      if (
+        regional?.winner &&
+        normalizePick(regional.winner) === normalizePick(pick)
+      ) {
+        score += 1;
+      }
+    });
+
+    return score;
+  };
+
   const calculateSuperRegionalScoreFromData = (picks, superRegionalsData) => {
     let score = 0;
 
@@ -110,13 +145,15 @@ export const Tournament2026Provider = ({ children }) => {
   };
 
   /*
-    This is the ONE source of truth for 2026 scoring.
+    ONE source of truth for 2026 scoring.
 
-    It directly reads the current Firestore state:
+    It directly reads current Firestore state:
     - tournament2026/games
+    - regionals2026/regions
     - superRegionals2026/regions
     - users2026
     - userPicks2026
+    - regionalPicks2026
     - superRegionalPicks2026
 
     Then it writes the correct total to users2026/{uid}.score.
@@ -124,17 +161,22 @@ export const Tournament2026Provider = ({ children }) => {
   const recalculateAndSaveAllUserScores = async () => {
     try {
       const gamesSnap = await getDoc(doc(db, "tournament2026", "games"));
+      const regionalsSnap = await getDoc(doc(db, "regionals2026", "regions"));
       const superRegionalsSnap = await getDoc(
         doc(db, "superRegionals2026", "regions")
       );
 
       const gamesData = gamesSnap.exists() ? gamesSnap.data() || {} : {};
+      const regionalsData = regionalsSnap.exists()
+        ? regionalsSnap.data() || {}
+        : {};
       const superRegionalsData = superRegionalsSnap.exists()
         ? superRegionalsSnap.data() || {}
         : {};
 
       if (
         Object.keys(gamesData).length === 0 ||
+        Object.keys(regionalsData).length === 0 ||
         Object.keys(superRegionalsData).length === 0
       ) {
         return;
@@ -142,6 +184,9 @@ export const Tournament2026Provider = ({ children }) => {
 
       const usersSnapshot = await getDocs(collection(db, "users2026"));
       const cwsPicksSnapshot = await getDocs(collection(db, "userPicks2026"));
+      const regionalPicksSnapshot = await getDocs(
+        collection(db, "regionalPicks2026")
+      );
       const superRegionalPicksSnapshot = await getDocs(
         collection(db, "superRegionalPicks2026")
       );
@@ -149,6 +194,11 @@ export const Tournament2026Provider = ({ children }) => {
       const cwsPicksByUser = {};
       cwsPicksSnapshot.forEach((pickDoc) => {
         cwsPicksByUser[pickDoc.id] = pickDoc.data() || {};
+      });
+
+      const regionalPicksByUser = {};
+      regionalPicksSnapshot.forEach((pickDoc) => {
+        regionalPicksByUser[pickDoc.id] = pickDoc.data() || {};
       });
 
       const superRegionalPicksByUser = {};
@@ -162,16 +212,23 @@ export const Tournament2026Provider = ({ children }) => {
         const username = userData.username || uid;
 
         const cwsPicks = cwsPicksByUser[uid] || {};
+        const regPicks = regionalPicksByUser[uid] || {};
         const srPicks = superRegionalPicksByUser[uid] || {};
 
         const cwsScore = calculateCwsScoreFromData(cwsPicks, gamesData);
+        const regionalScore = calculateRegionalScoreFromData(
+          regPicks,
+          regionalsData
+        );
         const superRegionalScore = calculateSuperRegionalScoreFromData(
           srPicks,
           superRegionalsData
         );
         const adjustment = getTiebreakerAdjustment(uid, username);
 
-        const totalScore = cwsScore + superRegionalScore + adjustment;
+        const totalScore =
+          cwsScore + regionalScore + superRegionalScore + adjustment;
+
         const currentScore = Number(userData.score ?? 0);
 
         if (currentScore !== totalScore) {
@@ -223,6 +280,37 @@ export const Tournament2026Provider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
+  // Subscribe to 2026 Regionals doc; seed if missing or empty
+  useEffect(() => {
+    const regionalsDocRef = doc(db, "regionals2026", "regions");
+
+    const unsubscribe = onSnapshot(
+      regionalsDocRef,
+      async (docSnap) => {
+        const data = docSnap.exists() ? docSnap.data() || {} : null;
+        const isMissingOrEmpty = !data || Object.keys(data).length === 0;
+
+        if (isMissingOrEmpty) {
+          try {
+            await setDoc(regionalsDocRef, defaultRegionals);
+            setRegionals(defaultRegionals);
+          } catch (error) {
+            console.error("Failed to seed 2026 Regionals:", error);
+            setRegionals({});
+          }
+        } else {
+          setRegionals(data);
+          recalculateAndSaveAllUserScores();
+        }
+      },
+      (error) => {
+        console.error("2026 Regionals snapshot error:", error);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
   // Subscribe to 2026 Super Regionals doc; seed if missing or empty
   useEffect(() => {
     const superRegionalsDocRef = doc(db, "superRegionals2026", "regions");
@@ -265,6 +353,23 @@ export const Tournament2026Provider = ({ children }) => {
       },
       (error) => {
         console.error("2026 userPicks2026 snapshot error:", error);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  // Recalculate when Regional picks change
+  useEffect(() => {
+    const picksCollectionRef = collection(db, "regionalPicks2026");
+
+    const unsubscribe = onSnapshot(
+      picksCollectionRef,
+      () => {
+        recalculateAndSaveAllUserScores();
+      },
+      (error) => {
+        console.error("2026 regionalPicks2026 snapshot error:", error);
       }
     );
 
@@ -366,6 +471,29 @@ export const Tournament2026Provider = ({ children }) => {
     return () => unsubscribe();
   }, [user]);
 
+  // Keep this user's local Regional picks synced for UI highlighting
+  useEffect(() => {
+    if (!user) {
+      setRegionalPicks({});
+      return;
+    }
+
+    const regionalPicksRef = doc(db, "regionalPicks2026", user.uid);
+
+    const unsubscribe = onSnapshot(
+      regionalPicksRef,
+      (docSnap) => {
+        setRegionalPicks(docSnap.exists() ? docSnap.data() : {});
+      },
+      (error) => {
+        console.error("2026 Regional picks snapshot error:", error);
+        setRegionalPicks({});
+      }
+    );
+
+    return () => unsubscribe();
+  }, [user]);
+
   // Keep this user's local Super Regional picks synced for UI highlighting
   useEffect(() => {
     if (!user) {
@@ -405,6 +533,22 @@ export const Tournament2026Provider = ({ children }) => {
     await recalculateAndSaveAllUserScores();
   };
 
+  const saveRegionalPick = async (userId, regionalId, teamName) => {
+    const userDocRef = doc(db, "regionalPicks2026", userId);
+
+    if (teamName === null) {
+      await updateDoc(userDocRef, { [regionalId]: deleteField() }).catch(
+        async () => {
+          await setDoc(userDocRef, {});
+        }
+      );
+    } else {
+      await setDoc(userDocRef, { [regionalId]: teamName }, { merge: true });
+    }
+
+    await recalculateAndSaveAllUserScores();
+  };
+
   const saveSuperRegionalPick = async (userId, regionId, teamName) => {
     const userDocRef = doc(db, "superRegionalPicks2026", userId);
 
@@ -439,6 +583,24 @@ export const Tournament2026Provider = ({ children }) => {
     await recalculateAndSaveAllUserScores();
   };
 
+  // Admin/general update to a specific Regional field(s) in 2026 doc
+  const updateRegional = async (id, updatedData) => {
+    const regionalsDocRef = doc(db, "regionals2026", "regions");
+
+    await setDoc(
+      regionalsDocRef,
+      {
+        [id]: {
+          ...regionals[id],
+          ...updatedData,
+        },
+      },
+      { merge: true }
+    );
+
+    await recalculateAndSaveAllUserScores();
+  };
+
   // Admin/general update to a specific Super Regional field(s) in 2026 doc
   const updateSuperRegional = async (id, updatedData) => {
     const superRegionalsDocRef = doc(db, "superRegionals2026", "regions");
@@ -464,6 +626,10 @@ export const Tournament2026Provider = ({ children }) => {
         setGames,
         updateGame,
 
+        regionals,
+        setRegionals,
+        updateRegional,
+
         superRegionals,
         setSuperRegionals,
         updateSuperRegional,
@@ -474,6 +640,9 @@ export const Tournament2026Provider = ({ children }) => {
 
         saveUserPick,
         userPicks,
+
+        saveRegionalPick,
+        regionalPicks,
 
         saveSuperRegionalPick,
         superRegionalPicks,

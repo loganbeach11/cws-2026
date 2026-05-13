@@ -9,6 +9,7 @@ import { db } from "../firebase";
 import "./Tournament2026Page.css";
 import { useNavigate } from "react-router-dom";
 import SuperRegionals2026 from "../components/SuperRegionals2026";
+import Regionals2026 from "../components/Regionals2026";
 
 function Tournament2026Page({ isAdmin = false }) {
   const navigate = useNavigate();
@@ -165,6 +166,22 @@ useEffect(() => {
       {/* Page Content */}
       <div style={{ flex: 1 }}>
         <Tournament2026Provider>
+           {/* Super Regionals separator */}
+           <div className="omaha-final-eight-divider super-regionals-divider">
+              <div className="omaha-divider-line"></div>
+                <div className="omaha-divider-text">
+               <span className="omaha-divider-main">Regionals</span>
+              </div>
+            <div className="omaha-divider-line"></div>
+            </div>
+           <Regionals2026 isAdmin={isAdmin} />
+        <div className="omaha-final-eight-divider super-regionals-divider">
+          <div className="omaha-divider-line"></div>
+         <div className="omaha-divider-text">
+           <span className="omaha-divider-main">Super Regionals</span>
+            </div>
+            <div className="omaha-divider-line"></div>
+        </div>
           {/* Bracket first, full width */}
           <SuperRegionals2026 isAdmin={isAdmin} />
           <div className="omaha-final-eight-divider">
