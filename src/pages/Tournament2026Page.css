@@ -16,6 +16,7 @@
   max-width: 640px;
   width: 560px;           /* preferred width similar to your original look */
 }
+
 .tourny-2026-panel {
   background: #fff;
   padding: 22px;
@@ -52,6 +53,7 @@
   font-weight: 800;
   font-size: 1.25rem;     /* bigger line text */
 }
+
 .past-year-btn {
   font-weight: 800;
   font-size: 1.25rem;     /* bigger label */
@@ -75,23 +77,86 @@
   text-decoration: none;
   transition: color 0.2s ease;
 }
+
 .past-winners .winner-link:hover {
   color: #004a99;
   text-decoration: underline;
 }
 
-
+/* Responsive: stack panels under leaderboard on narrow screens */
 /* Responsive: stack panels under leaderboard on narrow screens */
 @media (max-width: 900px) {
   .tourny-2026-grid {
-    grid-template-columns: 1fr;          /* stack */
+    display: grid;
+    grid-template-columns: 1fr;
     row-gap: 16px;
+    column-gap: 0;
+    width: 100%;
+    max-width: 100%;
+    padding: 0 12px;
+    margin: 24px auto 0 auto;
+    box-sizing: border-box;
+    justify-items: center;
+    overflow-x: hidden;
   }
-  .leaderboard-2026-wrap,
-  .tourny-2026-panel {
-    justify-self: center;                 /* center each stacked block */
+
+  .leaderboard-2026-wrap {
+    justify-self: center;
     width: 100%;
     max-width: 640px;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .tourny-2026-panel {
+    justify-self: center;
+    width: 100%;
+    max-width: 640px;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .tourny-2026-panel.past-bracket,
+  .tourny-2026-panel.past-winners {
+    width: 100%;
+    max-width: 640px;
+    min-width: 0;
+    margin-top: 0;
+    box-sizing: border-box;
+  }
+
+  .past-winners .winner-line {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 500px) {
+  .tourny-2026-grid {
+    padding: 0 10px;
+  }
+
+  .leaderboard-2026-wrap,
+  .tourny-2026-panel,
+  .tourny-2026-panel.past-bracket,
+  .tourny-2026-panel.past-winners {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .past-year-btn {
+    width: 100%;
+    max-width: 260px;
+    padding: 14px 20px;
+    font-size: 1.1rem;
+  }
+
+  .tourny-2026-panel h3 {
+    font-size: 1.25rem;
+  }
+
+  .past-winners .winner-line {
+    font-size: 1.05rem;
   }
 }
 
@@ -140,6 +205,38 @@
   margin-top: 2px;
 }
 
+/* Collapsible Regionals/Super Regionals divider */
+.collapsible-divider {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+}
+
+.collapsible-divider:hover .omaha-divider-text {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.28);
+}
+
+.collapsible-divider:focus {
+  outline: none;
+}
+
+.collapsible-divider:focus-visible .omaha-divider-text {
+  outline: 3px solid rgba(255, 255, 255, 0.85);
+  outline-offset: 4px;
+}
+
+.collapsible-divider-text {
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.collapse-arrow {
+  font-size: 0.9rem;
+  margin-left: 6px;
+  vertical-align: 1px;
+}
+
 @media (max-width: 700px) {
   .omaha-final-eight-divider {
     width: 100%;
@@ -164,5 +261,10 @@
 
   .omaha-divider-sub {
     font-size: 0.72rem;
+  }
+
+  .collapse-arrow {
+    font-size: 0.8rem;
+    margin-left: 4px;
   }
 }

@@ -195,7 +195,7 @@ function SuperRegionals2026({ isAdmin }) {
         <h2>Road to Omaha: Super Regional Picks</h2>
         <p>
           Pick the 8 teams you think will punch their ticket to Omaha. Each
-          correct pick will be worth 1 point. All super regional picks will be locked 
+          correct pick will be worth 1 point. All Super Regional picks will be locked 
           on June 5th at x:xx pm.
         </p>
       </div>
