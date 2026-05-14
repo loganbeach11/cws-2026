@@ -17,7 +17,15 @@ function Game2026({ gameId, isAdmin }) {
   };
 
   const updateTeam = (teamKey, value) => {
-    if (isAdmin) updateGame(gameId, { [teamKey]: value });
+    if (!isAdmin) return;
+
+    const wasWinner =
+      normalizePick(game.winner) === normalizePick(game[teamKey]);
+
+    updateGame(gameId, {
+      [teamKey]: value,
+      ...(wasWinner ? { winner: "" } : {}),
+    });
   };
 
   const setWinner = (teamKey) => {
@@ -25,6 +33,7 @@ function Game2026({ gameId, isAdmin }) {
       const teamName = game[teamKey] || "TBD";
       const currentWinner = game.winner;
       const newWinner = currentWinner === teamName ? "" : teamName;
+
       updateGame(gameId, { winner: newWinner });
     }
   };
@@ -38,21 +47,33 @@ function Game2026({ gameId, isAdmin }) {
     const isTBD = actualName.trim().toUpperCase() === "TBD";
 
     const userCurrentPick = userPicks?.[gameId];
-    const isPicked = normalizePick(userCurrentPick) === normalizePick(actualName);
+    const isPicked =
+      normalizePick(userCurrentPick) === normalizePick(actualName);
 
-    const winnerName = game.winner?.trim();
-    const hasWinner = Boolean(winnerName);
+    const winnerName = game.winner?.trim() || "";
+    const normalizedWinner = normalizePick(winnerName);
+
+    const currentTeamNames = [game.team1, game.team2].map((team) =>
+      normalizePick(team)
+    );
+
+    const hasWinner =
+      Boolean(winnerName) &&
+      normalizedWinner !== "tbd" &&
+      currentTeamNames.includes(normalizedWinner);
 
     const isActualWinner =
-      hasWinner && normalizePick(actualName) === normalizePick(winnerName);
+      hasWinner && normalizePick(actualName) === normalizedWinner;
 
     const isCorrect = isPicked && isActualWinner;
     const isIncorrect = isPicked && hasWinner && !isActualWinner;
     const isNeutral = isPicked && !hasWinner;
 
-    const hasUserPickedThisGame = Boolean(userCurrentPick);
-    const isWinnerNotPicked =
-      hasWinner && isActualWinner && hasUserPickedThisGame && !isPicked;
+    // For 2026:
+    // Show the actual winner in gold if:
+    // - the user picked wrong, OR
+    // - the user made no pick
+    const isWinnerNotPicked = hasWinner && isActualWinner && !isPicked;
 
     const shouldDisableHover = game.locked && !isAdmin;
 
@@ -66,6 +87,10 @@ function Game2026({ gameId, isAdmin }) {
       if (isWinnerNotPicked) return "🏆";
       return "";
     };
+
+    const resultIcon = getResultIcon();
+    const isLongResultName = resultIcon && actualName.length >= 16;
+    const isVeryLongResultName = resultIcon && actualName.length >= 20;
 
     const handleClick = () => {
       if (isAdmin || game.locked || isTBD || !user) return;
@@ -89,6 +114,7 @@ function Game2026({ gameId, isAdmin }) {
         {isAdmin ? (
           <input
             className={`admin-input ${
+              hasWinner &&
               normalizePick(game.winner) === normalizePick(actualName)
                 ? "winner-highlight"
                 : ""
@@ -98,15 +124,19 @@ function Game2026({ gameId, isAdmin }) {
           />
         ) : (
           <span
-            className={`team-label ${
-              normalizePick(game.winner) === normalizePick(actualName)
-                ? "winner-highlight"
-                : ""
-            } ${isLoserGame11or12 ? "small-text" : ""}`}
+            className={`team-label
+              ${
+                hasWinner &&
+                normalizePick(game.winner) === normalizePick(actualName)
+                  ? "winner-highlight"
+                  : ""
+              }
+              ${isLoserGame11or12 ? "small-text" : ""}
+              ${isLongResultName ? "long-team-name" : ""}
+              ${isVeryLongResultName ? "very-long-team-name" : ""}
+            `}
           >
-            {getResultIcon() && (
-              <span className="result-icon">{getResultIcon()}</span>
-            )}
+            {resultIcon && <span className="result-icon">{resultIcon}</span>}
             {actualName}
           </span>
         )}
@@ -125,9 +155,11 @@ function Game2026({ gameId, isAdmin }) {
           <button onClick={() => setWinner("team1")}>
             Set {game.team1 || "Team 1"} Winner
           </button>
+
           <button onClick={() => setWinner("team2")}>
             Set {game.team2 || "Team 2"} Winner
           </button>
+
           <label>
             Lock:{" "}
             <input type="checkbox" checked={game.locked} onChange={toggleLock} />

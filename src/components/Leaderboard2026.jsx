@@ -25,7 +25,9 @@ function Leaderboard2026({ currentUsername }) {
           (user) =>
             user.username !== "loganbeach11" &&
             user.username !== "loganbeach11@fake.com" &&
-            user.username !== "lo"
+            user.username !== "lo" &&
+            user.username !== "log" &&
+            user.uid !== "bf5dgOYciTR4pfgAZ3nTFvQUPFs1"
         );
 
       userList.sort((a, b) => b.points - a.points);

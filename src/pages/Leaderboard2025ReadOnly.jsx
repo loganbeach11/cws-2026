@@ -3,7 +3,7 @@ import { db } from "../firebase";
 // Reads 2025 scores ONLY from the `users` collection
 import { collection, onSnapshot } from "firebase/firestore";
 
-// Reuse your existing leaderboard styles (adjust the path if your CSS lives elsewhere)
+// Reuse your existing leaderboard styles
 import "../components/Leaderboard.css";
 
 export default function Leaderboard2025ReadOnly({ currentUsername = "" }) {
@@ -17,17 +17,24 @@ export default function Leaderboard2025ReadOnly({ currentUsername = "" }) {
       const list = snapshot.docs
         .map((d) => {
           const data = d.data() || {};
-            const username = data.username || d.id;
-	    let points = Number(data.score ?? 0);
-           if (username === "Brandon_Beach_FTW") {
-             points += 0.5;
-           }
+          const username = data.username || d.id;
+          let points = Number(data.score ?? 0);
 
-          return { username, points };
+          if (username === "Brandon_Beach_FTW") {
+            points += 0.5;
+          }
+
+          return {
+            username,
+            points,
+            eligible2025: data.eligible2025,
+          };
         })
-        // Keep your original filters
+        // Hide new 2026-only users from the 2025 leaderboard.
+        // Old 2025 users without this field still show.
         .filter(
           (u) =>
+            u.eligible2025 !== false &&
             u.username !== "loganbeach11" &&
             u.username !== "loganbeach11@fake.com" &&
             u.username !== "lo"
@@ -36,7 +43,8 @@ export default function Leaderboard2025ReadOnly({ currentUsername = "" }) {
 
       setUsers(list);
     });
-      return () => unsubscribe();
+
+    return () => unsubscribe();
   }, []);
 
   // Tie-handling exactly like your original
@@ -55,8 +63,9 @@ export default function Leaderboard2025ReadOnly({ currentUsername = "" }) {
       const isTied = sameAsPrev || sameAsNext;
       const rank = sameAsPrev ? ranked[ranked.length - 1].rank : currentRank;
 
-	ranked.push({ ...cur, rank, isTied });
-	if (!sameAsNext) {
+      ranked.push({ ...cur, rank, isTied });
+
+      if (!sameAsNext) {
         currentRank += tieCount;
         tieCount = 1;
       } else {
@@ -74,7 +83,8 @@ export default function Leaderboard2025ReadOnly({ currentUsername = "" }) {
     if (rank === 3) return `${prefix}🥉`;
     return `${prefix}${rank}.`;
   };
-    const rankedUsers = getRankedUsers();
+
+  const rankedUsers = getRankedUsers();
 
   return (
     <div className="leaderboard">
@@ -86,12 +96,14 @@ export default function Leaderboard2025ReadOnly({ currentUsername = "" }) {
               {renderRank(u.rank, u.isTied)}{" "}
               <span
                 className={
+                  currentUsername &&
                   u.username.toLowerCase() === currentUsername.toLowerCase()
                     ? "highlight-user"
                     : ""
                 }
               >
-		  {u.username} - {u.points} {u.points === 1 ? "point" : "points"}
+                {u.username} - {u.points}{" "}
+                {u.points === 1 ? "point" : "points"}
               </span>
             </span>
           </li>

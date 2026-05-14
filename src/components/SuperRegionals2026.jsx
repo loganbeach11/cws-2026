@@ -145,7 +145,9 @@ function SuperRegionals2026({ isAdmin }) {
 
     const currentPick = superRegionalPicks?.[regionId];
     const newPick =
-      normalizePick(currentPick) === normalizePick(actualName) ? null : actualName;
+      normalizePick(currentPick) === normalizePick(actualName)
+        ? null
+        : actualName;
 
     await saveSuperRegionalPick(user.uid, regionId, newPick);
   };
@@ -178,9 +180,10 @@ function SuperRegionals2026({ isAdmin }) {
     const isIncorrect = isPicked && hasWinner && !isActualWinner;
     const isNeutral = isPicked && !hasWinner;
 
-    const hasUserPickedThisRegion = Boolean(userCurrentPick);
-    const isWinnerNotPicked =
-      hasWinner && isActualWinner && hasUserPickedThisRegion && !isPicked;
+    // Show the actual winner in gold if:
+    // - the user picked wrong, OR
+    // - the user made no pick
+    const isWinnerNotPicked = hasWinner && isActualWinner && !isPicked;
 
     const shouldDisableHover = region?.locked && !isAdmin;
 
@@ -190,6 +193,10 @@ function SuperRegionals2026({ isAdmin }) {
       if (isWinnerNotPicked) return "🏆";
       return "";
     };
+
+    const resultIcon = getResultIcon();
+    const isLongResultName = resultIcon && actualName.length >= 16;
+    const isVeryLongResultName = resultIcon && actualName.length >= 20;
 
     return (
       <div
@@ -207,7 +214,8 @@ function SuperRegionals2026({ isAdmin }) {
         {isAdmin ? (
           <input
             className={`admin-input ${
-              hasWinner && normalizePick(region?.winner) === normalizePick(actualName)
+              hasWinner &&
+              normalizePick(region?.winner) === normalizePick(actualName)
                 ? "winner-highlight"
                 : ""
             }`}
@@ -217,15 +225,18 @@ function SuperRegionals2026({ isAdmin }) {
           />
         ) : (
           <span
-            className={`team-label ${
-              hasWinner && normalizePick(region?.winner) === normalizePick(actualName)
-                ? "winner-highlight"
-                : ""
-            }`}
+            className={`team-label
+              ${
+                hasWinner &&
+                normalizePick(region?.winner) === normalizePick(actualName)
+                  ? "winner-highlight"
+                  : ""
+              }
+              ${isLongResultName ? "long-team-name" : ""}
+              ${isVeryLongResultName ? "very-long-team-name" : ""}
+            `}
           >
-            {getResultIcon() && (
-              <span className="result-icon">{getResultIcon()}</span>
-            )}
+            {resultIcon && <span className="result-icon">{resultIcon}</span>}
             {actualName}
           </span>
         )}

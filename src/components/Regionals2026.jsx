@@ -136,9 +136,10 @@ function Regionals2026({ isAdmin }) {
     const isIncorrect = isPicked && hasWinner && !isActualWinner;
     const isNeutral = isPicked && !hasWinner;
 
-    const hasUserPickedThisRegional = Boolean(userCurrentPick);
-    const isWinnerNotPicked =
-      hasWinner && isActualWinner && hasUserPickedThisRegional && !isPicked;
+    // Show the actual winner in gold if:
+    // - the user picked wrong, OR
+    // - the user made no pick
+    const isWinnerNotPicked = hasWinner && isActualWinner && !isPicked;
 
     const shouldDisableHover = regional?.locked && !isAdmin;
 
@@ -148,6 +149,10 @@ function Regionals2026({ isAdmin }) {
       if (isWinnerNotPicked) return "🏆";
       return "";
     };
+
+    const resultIcon = getResultIcon();
+    const isLongResultName = resultIcon && actualName.length >= 16;
+    const isVeryLongResultName = resultIcon && actualName.length >= 20;
 
     return (
       <div
@@ -186,16 +191,18 @@ function Regionals2026({ isAdmin }) {
           />
         ) : (
           <span
-            className={`team-label ${
-              hasWinner &&
-              normalizePick(regional?.winner) === normalizePick(actualName)
-                ? "winner-highlight"
-                : ""
-            }`}
+            className={`team-label
+              ${
+                hasWinner &&
+                normalizePick(regional?.winner) === normalizePick(actualName)
+                  ? "winner-highlight"
+                  : ""
+              }
+              ${isLongResultName ? "long-team-name" : ""}
+              ${isVeryLongResultName ? "very-long-team-name" : ""}
+            `}
           >
-            {getResultIcon() && (
-              <span className="result-icon">{getResultIcon()}</span>
-            )}
+            {resultIcon && <span className="result-icon">{resultIcon}</span>}
             {actualName}
           </span>
         )}

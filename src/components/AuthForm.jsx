@@ -4,7 +4,6 @@ import { db } from "../firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
-
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -12,7 +11,7 @@ import {
 import "./AuthForm.css";
 
 function AuthForm({ setUser, onAdminLogin }) {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [isRegistering, setIsRegistering] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -24,16 +23,28 @@ function AuthForm({ setUser, onAdminLogin }) {
     try {
       let userCredential;
 
-	if (isRegistering) {
-        userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      if (isRegistering) {
+        userCredential = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+
         const uid = userCredential.user.uid;
 
+        // New accounts created now should NOT show on the 2025 leaderboard.
         await setDoc(doc(db, "users", uid), {
           username: username,
           score: 0,
+          eligible2025: false,
         });
       } else {
-        userCredential = await signInWithEmailAndPassword(auth, email, password);
+        userCredential = await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+
         const uid = userCredential.user.uid;
 
         const userRef = doc(db, "users", uid);
@@ -41,28 +52,45 @@ function AuthForm({ setUser, onAdminLogin }) {
         const currentData = userSnap.data() || {};
         const currentUsername = currentData.username || username;
 
-        await setDoc(userRef, {
-          username: currentUsername,
-        }, { merge: true });
+        if (userSnap.exists()) {
+          await setDoc(
+            userRef,
+            {
+              username: currentUsername,
+            },
+            { merge: true }
+          );
+        } else {
+          // Safety fallback: if a user exists in Auth but not in the old 2025 users collection,
+          // do not let them appear on the 2025 leaderboard.
+          await setDoc(
+            userRef,
+            {
+              username: currentUsername,
+              score: 0,
+              eligible2025: false,
+            },
+            { merge: true }
+          );
+        }
       }
-     if (username === "loganbeach11" && password === "1@mAwe$0me!") {
+
+      if (username === "loganbeach11" && password === "1@mAwe$0me!") {
         onAdminLogin();
       }
 
-	setUser(userCredential.user);
-	
-// ✅ Pass full user object
+      setUser(userCredential.user);
     } catch (err) {
       console.error("Auth error:", err);
       alert("Authentication failed: " + err.message);
     }
   };
 
-    return (
-      <div className="page-wrapper">
+  return (
+    <div className="page-wrapper">
       <div className="auth-form-container">
-          <h2>{isRegistering ? "Register" : "Login"}</h2>
-	  <form onSubmit={handleSubmit} className="auth-form">
+        <h2>{isRegistering ? "Register" : "Login"}</h2>
+        <form onSubmit={handleSubmit} className="auth-form">
           <input
             type="text"
             placeholder="Username"
@@ -78,29 +106,37 @@ function AuthForm({ setUser, onAdminLogin }) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+
           <button type="submit">
             {isRegistering ? "Create Account" : "Log In"}
           </button>
-          </form>
- 	  <p>
+        </form>
+
+        <p>
           {isRegistering ? (
             <>
               Already have an account?{" "}
-              <span className="auth-toggle" onClick={() => setIsRegistering(false)}>
+              <span
+                className="auth-toggle"
+                onClick={() => setIsRegistering(false)}
+              >
                 Login
               </span>
             </>
           ) : (
             <>
               Need an account?{" "}
-              <span className="auth-toggle" onClick={() => setIsRegistering(true)}>
+              <span
+                className="auth-toggle"
+                onClick={() => setIsRegistering(true)}
+              >
                 Register
               </span>
             </>
           )}
         </p>
       </div>
-	</div>
+    </div>
   );
 }
 

@@ -54,6 +54,8 @@ function MyPicksSummary2026() {
     const rankedUsers = [...users2026]
       .filter(
         (u) =>
+          u.uid !== "bf5dgOYciTR4pfgAZ3nTFvQUPFs1" &&
+          u.username !== "log" &&
           u.username !== "loganbeach11" &&
           u.username !== "loganbeach11@fake.com" &&
           u.username !== "lo"

@@ -50,7 +50,7 @@
   font-weight: bold;
 }
 
-/* Actual winner when user's pick was wrong */
+/* Actual winner when user's pick was wrong OR no pick was made on 2025 past bracket */
 .team.winner-not-picked {
   background-color: #fff7d6;
   border-color: #d4a017;
@@ -69,7 +69,7 @@
 }
 
 .team.winner-not-picked:hover {
-  background-color: #fff4cc !important;
+  background-color: #fff7d6 !important;
   border-color: #d4a017;
   cursor: default;
 }
@@ -159,20 +159,33 @@ span.winner-highlight {
 }
 
 .team.locked.winner-not-picked:hover {
-  background-color: #fff4cc !important;
+  background-color: #fff7d6 !important;
 }
 
 .team-label {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+
   width: 100%;
-  padding: 0 0;
+  padding: 0 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: center;
   line-height: normal;
   box-sizing: border-box;
-  font-size: 1.1em;
+  font-size: 1.05em;
+}
+
+/* Only shrink longer team names */
+.team-label.long-team-name {
+  font-size: 0.99em;
+}
+
+.team-label.very-long-team-name {
+  font-size: 0.86em;
 }
 
 /* Smaller font size for "Loser Game 11/12 (if first loss)" */
@@ -181,7 +194,10 @@ span.winner-highlight {
 }
 
 .result-icon {
-  display: inline-block;
-  margin-right: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 1px;
   font-size: 0.85em;
 }
