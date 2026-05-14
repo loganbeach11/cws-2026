@@ -121,7 +121,7 @@ const getRankedUsers = () => {
 
   return (
     <div className="leaderboard">
-      <h2>🏅 Leaderboard</h2>
+      <h2>🏆 Leaderboard 🏆</h2>
       <ol>
         {rankedUsers.map((user) => (
           <li key={user.username}>

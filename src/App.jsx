@@ -91,7 +91,7 @@ function App() {
     {/* Show 2026 Header ONLY on the login page */}
     {location.pathname === "/" && (
       <div className="header">
-        <h1 className="header-title">🏟️ 2026 CWS Bracket ⚾</h1>
+        <h1 className="header-title">⚾ 2026 CWS Bracket ⚾</h1>
       </div>
     )}
 
@@ -111,7 +111,7 @@ function App() {
             </label>
           </div>
         )}
-        <h1 className="header-title">🏟️ 2025 CWS Bracket ⚾</h1>
+        <h1 className="header-title">⚾ 2025 CWS Bracket ⚾</h1>
         {user && (
           <div className="header-score">
             {usernameDisplay} - {userScore} {userScore === 1 ? "point" : "points"}

@@ -157,7 +157,7 @@ function Tournament2026Page({ isAdmin = false }) {
           </div>
         )}
 
-        <h1 className="header-title">🏟️ 2026 CWS Bracket ⚾</h1>
+        <h1 className="header-title">⚾ 2026 CWS Bracket ⚾</h1>
 
         {user && (
           <div className="header-score">
@@ -226,6 +226,13 @@ function Tournament2026Page({ isAdmin = false }) {
           </div>
 
           <Bracket2026 isAdmin={isAdmin} />
+          <div className="omaha-final-eight-divider leaderboard-history-divider">
+            <div className="omaha-divider-line"></div>
+            <div className="omaha-divider-text leaderboard-history-divider-text">
+            <span className="omaha-divider-main">Leaderboard & History</span>
+              </div>
+              <div className="omaha-divider-line"></div>
+            </div>
 
           {/* Grid: left panel, leaderboard, right panel */}
           <div className="tourny-2026-grid">
@@ -244,7 +251,6 @@ function Tournament2026Page({ isAdmin = false }) {
             <div className="leaderboard-2026-wrap">
               <Leaderboard2026 currentUsername={usernameDisplay} />
             </div>
-
             {/* Past Winners */}
             <div className="tourny-2026-panel past-winners">
               <h3>Past Winners</h3>

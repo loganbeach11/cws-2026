@@ -1,6 +1,6 @@
 .auth-form-container {
-    padding: 30px;
-    width: 100%;
+  padding: 30px;
+  width: 100%;
   max-width: 400px;
   border: 2px solid #ccc;
   border-radius: 10px;
@@ -12,7 +12,7 @@
 .auth-form-container h2 {
   text-align: center;
   margin-bottom: 15px;
-  margin-top: -5px; 
+  margin-top: -5px;
   color: #333;
   font-size: 25px;
 }
@@ -25,7 +25,7 @@
   border: 1px solid #ccc;
   border-radius: 6px;
   box-sizing: border-box;
-  font-size: 1.1rem;   
+  font-size: 1.1rem;
 }
 
 .auth-form-container button {
@@ -56,9 +56,11 @@
   cursor: pointer;
   transition: color 0.2s ease;
 }
+
 .auth-form-container span:hover {
-  color: #003c9e; /* Darker blue or any color you prefer */
+  color: #003c9e;
 }
+
 .toggle-button {
   margin-top: 10px;
   color: #007bff;
@@ -70,8 +72,16 @@
 .toggle-button:hover {
   color: #0056b3;
 }
+
 .page-wrapper {
   background-color: navy;
+  background-image:
+    linear-gradient(rgba(0, 0, 40, 0.45), rgba(0, 0, 40, 0.65)),
+    url("/stadium.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
   width: 100%;
   min-height: 100vh;
   padding-top: 180px;
@@ -86,49 +96,85 @@
   justify-content: center;
 }
 
-
-
-
 /* Responsive layout for small screens */
 @media (max-width: 600px) {
-  body, html {
-    overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    height: auto;
-  }
-
-  .auth-form-container {
-    width: 90%;
-    padding: 15px;
-    margin: 90px auto 0 auto !important;
-    transform: scale(0.9);
-    transform-origin: top center;
-  }
-
-  .auth-form input {
+  body,
+  html,
+  #root {
+    margin: 0;
+    padding: 0;
     width: 100%;
-    font-size: 1.15rem;
-    padding: 14px;
-  }
-  .auth-form button {
-    width: 100%;
-    font-size: 1.15rem;
-    padding: 16px;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
+    overscroll-behavior: none;
+    position: fixed;
+    inset: 0;
   }
 
   .page-wrapper {
+    position: fixed;
+    inset: 0;
+
+    width: 100vw;
+    height: 100dvh;
+    min-height: 100dvh;
+    max-height: 100dvh;
+
+    padding: 0 18px !important;
+    box-sizing: border-box;
+
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    padding-top: 0 !important;
+
+    overflow: hidden !important;
+    touch-action: none;
+
+    background-position: center;
+    background-size: cover;
+  }
+
+  .auth-form-container {
+    width: 100%;
+    max-width: 340px;
+    padding: 18px;
+    margin: 0 auto !important;
+    box-sizing: border-box;
+    transform: translateY(-22px);
+  }
+
+  .auth-form-container h2 {
+    font-size: 22px;
+    margin-bottom: 12px;
+  }
+
+  .auth-form-container input[type="text"],
+  .auth-form-container input[type="password"] {
+    width: 100%;
+    font-size: 1rem;
+    padding: 13px 14px;
+    margin-bottom: 14px;
+  }
+
+  .auth-form-container button {
+    width: 100%;
+    font-size: 1rem;
+    padding: 14px;
+  }
+
+  .auth-form-container p {
+    font-size: 15px;
+    margin-top: 12px;
+    margin-bottom: 0;
   }
 }
 
 /* Desktop base styles */
-body, html {
+body,
+html {
   margin: 0;
   padding: 0;
   width: 100%;
@@ -137,13 +183,14 @@ body, html {
 }
 
 @media (min-width: 601px) {
-  body.login-lock, html.login-lock {
+  body.login-lock,
+  html.login-lock {
     overflow: hidden !important;
     height: 100vh;
   }
 
   .page-wrapper {
-    padding-top: 130px; /* Restore original spacing on desktop */
+    padding-top: 130px;
     display: flex;
     align-items: flex-start;
     justify-content: center;
@@ -155,4 +202,3 @@ body, html {
     transform: none;
   }
 }
-

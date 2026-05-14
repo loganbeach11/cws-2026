@@ -82,7 +82,7 @@ function Leaderboard2026({ currentUsername }) {
 
   return (
     <div className="leaderboard">
-      <h2>🏅 Leaderboard</h2>
+      <h2>🏆 Leaderboard 🏆</h2>
 
       <ol>
         {rankedUsers.map((user) => (

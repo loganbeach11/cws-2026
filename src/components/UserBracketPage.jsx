@@ -87,7 +87,7 @@ function UserBracketPage() {
         >
           Back
         </button>
-        <h1 style={{ margin: 0, fontSize: "1.5rem" }}>🏟️ 2025 CWS Bracket ⚾</h1>
+        <h1 style={{ margin: 0, fontSize: "1.5rem" }}>⚾ 2025 CWS Bracket ⚾</h1>
         <div style={{ color: "darkorange" }}>
           {userData.username} - {userData.score} {userData.score === 1 ? "point" : "points"}
         </div>
