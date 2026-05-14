@@ -192,102 +192,115 @@ export const Tournament2026Provider = ({ children }) => {
     settings,
     predictionsByUser,
     usersSnapshot,
-    cwsPicksByUser,
     gamesData,
+    baseScoresByUser,
   }) => {
     if (!settings?.active) return null;
-
+  
     if (!actualRunsAreEntered(settings.actualTotalRuns)) {
       return null;
     }
-
+  
     const actualTotalRuns = Number(settings.actualTotalRuns);
-
+  
     if (!Number.isFinite(actualTotalRuns)) return null;
-
+  
     const finalGame = gamesData?.["15"];
     const finalWinner = finalGame?.winner;
-
+  
     // Do not calculate the bonus until the final game is locked.
     if (finalGame?.locked !== true) {
       return null;
     }
-
+  
+    // The final winner still needs to be selected because that affects
+    // everyone's normal score before the tiebreaker.
     if (!finalWinner || normalizePick(finalWinner) === "tbd") {
       return null;
     }
-
-    const eligibleCorrectUsers = [];
-
+  
+    const baseScores = Object.values(baseScoresByUser || {}).map((item) =>
+      Number(item.baseScore ?? 0)
+    );
+  
+    if (baseScores.length === 0) {
+      return null;
+    }
+  
+    const highestBaseScore = Math.max(...baseScores);
+  
+    const tiedForFirstUsers = [];
+  
     usersSnapshot.docs.forEach((userDoc) => {
       const uid = userDoc.id;
       const userData = userDoc.data() || {};
       const username = userData.username || uid;
-
+  
+      const userBaseScore = Number(baseScoresByUser?.[uid]?.baseScore ?? 0);
+  
+      // Only users tied for first after the final winner is selected
+      // are considered for the tiebreaker.
+      if (userBaseScore !== highestBaseScore) return;
+  
       const isEligible = userIsTiebreakerEligible(uid, username, settings);
       if (!isEligible) return;
-
+  
       const predictionData = predictionsByUser[uid] || {};
       const predictedRuns = Number(predictionData.predictedRuns);
-
+  
       if (!Number.isFinite(predictedRuns)) return;
-
-      const userFinalPick = cwsPicksByUser[uid]?.["15"];
-
-      const pickedFinalWinner =
-        normalizePick(userFinalPick) === normalizePick(finalWinner);
-
-      if (!pickedFinalWinner) return;
-
-      eligibleCorrectUsers.push({
+  
+      tiedForFirstUsers.push({
         uid,
         username,
         predictedRuns,
+        baseScore: userBaseScore,
         difference: Math.abs(predictedRuns - actualTotalRuns),
       });
     });
-
-    if (eligibleCorrectUsers.length === 0) {
+  
+    if (tiedForFirstUsers.length === 0) {
       return null;
     }
-
-    eligibleCorrectUsers.sort((a, b) => a.difference - b.difference);
-
-    const bestDifference = eligibleCorrectUsers[0].difference;
-    const usersWithBestDifference = eligibleCorrectUsers.filter(
+  
+    tiedForFirstUsers.sort((a, b) => a.difference - b.difference);
+  
+    const bestDifference = tiedForFirstUsers[0].difference;
+    const usersWithBestDifference = tiedForFirstUsers.filter(
       (item) => item.difference === bestDifference
     );
-
+  
     /*
-      If two eligible users are exactly tied on the tiebreaker prediction,
+      If two tied-for-first users are exactly tied on the runs prediction,
       do not auto-award the 0.5 yet.
     */
     if (usersWithBestDifference.length > 1) {
       return null;
     }
-
-    return eligibleCorrectUsers[0];
+  
+    return tiedForFirstUsers[0];
   };
-
   const maybeUpdateTiebreakerWinnerFields = async (
     currentSettings,
     builtInTiebreakerWinner
   ) => {
     if (!currentSettings?.active) return;
-
+  
     const newBonusWinnerUid = builtInTiebreakerWinner?.uid || "";
     const newBonusWinnerUsername = builtInTiebreakerWinner?.username || "";
-
-    const oldBonusWinnerUid = currentSettings.bonusWinnerUid || "";
-    const oldBonusWinnerUsername = currentSettings.bonusWinnerUsername || "";
-
+  
+    const currentBonusWinnerUid = currentSettings.bonusWinnerUid || "";
+    const currentBonusWinnerUsername = currentSettings.bonusWinnerUsername || "";
+  
+    // Do not keep rewriting Firestore if nothing actually changed.
+    // This prevents the admin form from constantly resetting while you edit it.
     if (
-      newBonusWinnerUid === oldBonusWinnerUid &&
-      newBonusWinnerUsername === oldBonusWinnerUsername
+      newBonusWinnerUid === currentBonusWinnerUid &&
+      newBonusWinnerUsername === currentBonusWinnerUsername
     ) {
       return;
     }
-
+  
     await setDoc(
       doc(db, "tiebreaker2026", "settings"),
       {
@@ -378,13 +391,45 @@ export const Tournament2026Provider = ({ children }) => {
         predictionsByUser[predictionDoc.id] = predictionDoc.data() || {};
       });
 
-      const builtInTiebreakerWinner = getBuiltInTiebreakerWinner({
-        settings: currentTiebreakerSettings,
-        predictionsByUser,
-        usersSnapshot,
-        cwsPicksByUser,
-        gamesData,
-      });
+      const baseScoresByUser = {};
+
+usersSnapshot.docs.forEach((userDoc) => {
+  const uid = userDoc.id;
+  const userData = userDoc.data() || {};
+  const username = userData.username || uid;
+
+  const cwsPicks = cwsPicksByUser[uid] || {};
+  const regPicks = regionalPicksByUser[uid] || {};
+  const srPicks = superRegionalPicksByUser[uid] || {};
+
+  const cwsScore = calculateCwsScoreFromData(cwsPicks, gamesData);
+  const regionalScore = calculateRegionalScoreFromData(
+    regPicks,
+    regionalsData
+  );
+  const superRegionalScore = calculateSuperRegionalScoreFromData(
+    srPicks,
+    superRegionalsData
+  );
+
+  const manualAdjustment = getManualTiebreakerAdjustment(uid, username);
+
+  const baseScore =
+    cwsScore + regionalScore + superRegionalScore + manualAdjustment;
+
+  baseScoresByUser[uid] = {
+    username,
+    baseScore,
+  };
+});
+
+const builtInTiebreakerWinner = getBuiltInTiebreakerWinner({
+  settings: currentTiebreakerSettings,
+  predictionsByUser,
+  usersSnapshot,
+  gamesData,
+  baseScoresByUser,
+});
 
       const builtInBonusAmount = Number(
         currentTiebreakerSettings.bonusAmount ?? 0.5
@@ -417,12 +462,9 @@ export const Tournament2026Provider = ({ children }) => {
             ? builtInBonusAmount
             : 0;
 
-        const totalScore =
-          cwsScore +
-          regionalScore +
-          superRegionalScore +
-          manualAdjustment +
-          builtInTiebreakerAdjustment;
+            const baseScore = Number(baseScoresByUser?.[uid]?.baseScore ?? 0);
+
+            const totalScore = baseScore + builtInTiebreakerAdjustment;
 
         const currentScore = Number(userData.score ?? 0);
 
