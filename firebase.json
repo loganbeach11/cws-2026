@@ -1,6 +1,6 @@
 {
-    "hosting": {
-	"site": "cws-2025",
+  "hosting": {
+    "target": "cws-2026",
     "public": "dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [

@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "cws-2025"
-  }
+  },
+  "targets": {
+    "cws-2025": {
+      "hosting": {
+        "cws-2026": [
+          "cws-2026"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }
