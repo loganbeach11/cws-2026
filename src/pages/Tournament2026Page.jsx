@@ -54,6 +54,9 @@ function ScoringRulesCard2026() {
           <span>Tiebreaker</span>
           <strong>+0.5 if needed</strong>
         </div>
+        <div className="scoring-time-note">
+        ⏰ All lock times are in CST.
+        </div>
       </div>
     </div>
   );

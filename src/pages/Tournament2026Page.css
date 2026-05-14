@@ -566,6 +566,13 @@
   font-weight: 900;
   color: navy;
 }
+.scoring-time-note {
+  margin-top: 8px;
+  color: navy;
+  font-size: 0.9rem;
+  font-weight: 900;
+  text-align: center;
+}
 
 @media (max-width: 700px) {
   .tiebreaker-prediction-box {
