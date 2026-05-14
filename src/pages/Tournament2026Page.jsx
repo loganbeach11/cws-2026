@@ -14,6 +14,8 @@ import { useNavigate } from "react-router-dom";
 import SuperRegionals2026 from "../components/SuperRegionals2026";
 import Regionals2026 from "../components/Regionals2026";
 import MyPicksSummary2026 from "../components/MyPicksSummary2026";
+import TiebreakerAdminControls2026 from "../components/TiebreakerAdminControls2026";
+import TiebreakerPrediction2026 from "../components/TiebreakerPrediction2026";
 
 function PickSavedToast() {
   const { pickToast } = useTournament2026();
@@ -38,8 +40,6 @@ function Tournament2026Page({ isAdmin = false }) {
   const [showRegionals, setShowRegionals] = useState(true);
   const [showSuperRegionals, setShowSuperRegionals] = useState(true);
 
-  // Mirror 2025 header behavior; ensure a users2026 doc exists for leaderboard
-  // Then live-listen to users2026/{uid} so the header score updates immediately.
   useEffect(() => {
     let unsubscribeUserDoc = null;
 
@@ -107,7 +107,6 @@ function Tournament2026Page({ isAdmin = false }) {
     };
   }, []);
 
-  // Subscribe to 2026 tournament complete flag
   useEffect(() => {
     const configRef = doc(db, "config", "tournament2026");
 
@@ -144,7 +143,6 @@ function Tournament2026Page({ isAdmin = false }) {
         backgroundColor: "navy",
       }}
     >
-      {/* Header - identical classes/markup to preserve look */}
       <div className="header">
         {isAdmin && (
           <div
@@ -182,13 +180,16 @@ function Tournament2026Page({ isAdmin = false }) {
         )}
       </div>
 
-      {/* Page Content */}
       <div style={{ flex: 1 }}>
         <Tournament2026Provider>
           <PickSavedToast />
+
+          {isAdmin && <TiebreakerAdminControls2026 />}
+
           <MyPicksSummary2026 />
 
-          {/* Regionals separator */}
+          <TiebreakerPrediction2026 currentUsername={usernameDisplay} />
+
           <button
             type="button"
             className="omaha-final-eight-divider collapsible-divider"
@@ -209,7 +210,6 @@ function Tournament2026Page({ isAdmin = false }) {
 
           {showRegionals && <Regionals2026 isAdmin={isAdmin} />}
 
-          {/* Super Regionals separator */}
           <button
             type="button"
             className="omaha-final-eight-divider collapsible-divider"
@@ -230,7 +230,6 @@ function Tournament2026Page({ isAdmin = false }) {
 
           {showSuperRegionals && <SuperRegionals2026 isAdmin={isAdmin} />}
 
-          {/* Omaha bracket separator - not collapsible */}
           <div className="omaha-final-eight-divider">
             <div className="omaha-divider-line"></div>
             <div className="omaha-divider-text">
@@ -252,9 +251,7 @@ function Tournament2026Page({ isAdmin = false }) {
             <div className="omaha-divider-line"></div>
           </div>
 
-          {/* Grid: left panel, leaderboard, right panel */}
           <div className="tourny-2026-grid">
-            {/* Past Bracket */}
             <div className="tourny-2026-panel past-bracket">
               <h3>My Past Brackets</h3>
               <button
@@ -265,12 +262,10 @@ function Tournament2026Page({ isAdmin = false }) {
               </button>
             </div>
 
-            {/* Leaderboard */}
             <div className="leaderboard-2026-wrap">
               <Leaderboard2026 currentUsername={usernameDisplay} />
             </div>
 
-            {/* Past Winners */}
             <div className="tourny-2026-panel past-winners">
               <h3>Past Winners</h3>
               <div className="winner-line">

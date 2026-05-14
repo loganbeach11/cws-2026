@@ -1,5 +1,11 @@
 // src/context/Tournament2026Context.jsx
-import React, { createContext, useContext, useEffect, useRef, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { db } from "../firebase";
 import { auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -33,30 +39,31 @@ export const Tournament2026Provider = ({ children }) => {
   const [pickToast, setPickToast] = useState(null);
   const pickToastTimerRef = useRef(null);
 
+  const [tiebreakerSettings, setTiebreakerSettings] = useState({
+    active: false,
+    testMode: true,
+    predictionOpen: false,
+    eligibleUsernames: ["loganbeach13", "log"],
+    eligibleUserIds: [],
+    actualTotalRuns: null,
+    bonusAmount: 0.5,
+    bonusWinnerUid: "",
+    bonusWinnerUsername: "",
+  });
+
+  const [tiebreakerPredictions, setTiebreakerPredictions] = useState({});
+
   /*
     MANUAL TIEBREAKER ADJUSTMENTS
 
-    If the tournament ends in a tie, put the winner here and give them 0.5.
-
-    Best option: use their Firebase UID because it never changes.
-    Example:
-    const tiebreakerAdjustments = {
-      "abc123FirebaseUid": 0.5,
-    };
-
-    Backup option: use their username exactly as it appears in Firestore.
-    Example:
-    const tiebreakerAdjustments = {
-      "Brandon_Beach_FTW": 0.5,
-    };
-
-    Leave this empty until you actually need it.
+    Keep this as an emergency fallback only.
+    The built-in tiebreaker below is now the preferred way.
   */
   const tiebreakerAdjustments = {
     // "USER_FIREBASE_UID_OR_USERNAME": 0.5,
   };
 
-  const getTiebreakerAdjustment = (uid, username) => {
+  const getManualTiebreakerAdjustment = (uid, username) => {
     return tiebreakerAdjustments[uid] || tiebreakerAdjustments[username] || 0;
   };
 
@@ -162,6 +169,136 @@ export const Tournament2026Provider = ({ children }) => {
     return score;
   };
 
+  const userIsTiebreakerEligible = (uid, username, settings) => {
+    const eligibleUserIds = Array.isArray(settings?.eligibleUserIds)
+      ? settings.eligibleUserIds
+      : [];
+
+    const eligibleUsernames = Array.isArray(settings?.eligibleUsernames)
+      ? settings.eligibleUsernames.map((name) => normalizePick(name))
+      : [];
+
+    return (
+      eligibleUserIds.includes(uid) ||
+      eligibleUsernames.includes(normalizePick(username))
+    );
+  };
+
+  const actualRunsAreEntered = (value) => {
+    return value !== null && value !== undefined && value !== "";
+  };
+
+  const getBuiltInTiebreakerWinner = ({
+    settings,
+    predictionsByUser,
+    usersSnapshot,
+    cwsPicksByUser,
+    gamesData,
+  }) => {
+    if (!settings?.active) return null;
+
+    if (!actualRunsAreEntered(settings.actualTotalRuns)) {
+      return null;
+    }
+
+    const actualTotalRuns = Number(settings.actualTotalRuns);
+
+    if (!Number.isFinite(actualTotalRuns)) return null;
+
+    const finalGame = gamesData?.["15"];
+    const finalWinner = finalGame?.winner;
+
+    // Do not calculate the bonus until the final game is locked.
+    if (finalGame?.locked !== true) {
+      return null;
+    }
+
+    if (!finalWinner || normalizePick(finalWinner) === "tbd") {
+      return null;
+    }
+
+    const eligibleCorrectUsers = [];
+
+    usersSnapshot.docs.forEach((userDoc) => {
+      const uid = userDoc.id;
+      const userData = userDoc.data() || {};
+      const username = userData.username || uid;
+
+      const isEligible = userIsTiebreakerEligible(uid, username, settings);
+      if (!isEligible) return;
+
+      const predictionData = predictionsByUser[uid] || {};
+      const predictedRuns = Number(predictionData.predictedRuns);
+
+      if (!Number.isFinite(predictedRuns)) return;
+
+      const userFinalPick = cwsPicksByUser[uid]?.["15"];
+
+      const pickedFinalWinner =
+        normalizePick(userFinalPick) === normalizePick(finalWinner);
+
+      if (!pickedFinalWinner) return;
+
+      eligibleCorrectUsers.push({
+        uid,
+        username,
+        predictedRuns,
+        difference: Math.abs(predictedRuns - actualTotalRuns),
+      });
+    });
+
+    if (eligibleCorrectUsers.length === 0) {
+      return null;
+    }
+
+    eligibleCorrectUsers.sort((a, b) => a.difference - b.difference);
+
+    const bestDifference = eligibleCorrectUsers[0].difference;
+    const usersWithBestDifference = eligibleCorrectUsers.filter(
+      (item) => item.difference === bestDifference
+    );
+
+    /*
+      If two eligible users are exactly tied on the tiebreaker prediction,
+      do not auto-award the 0.5 yet.
+    */
+    if (usersWithBestDifference.length > 1) {
+      return null;
+    }
+
+    return eligibleCorrectUsers[0];
+  };
+
+  const maybeUpdateTiebreakerWinnerFields = async (
+    currentSettings,
+    builtInTiebreakerWinner
+  ) => {
+    if (!currentSettings?.active) return;
+
+    const newBonusWinnerUid = builtInTiebreakerWinner?.uid || "";
+    const newBonusWinnerUsername = builtInTiebreakerWinner?.username || "";
+
+    const oldBonusWinnerUid = currentSettings.bonusWinnerUid || "";
+    const oldBonusWinnerUsername = currentSettings.bonusWinnerUsername || "";
+
+    if (
+      newBonusWinnerUid === oldBonusWinnerUid &&
+      newBonusWinnerUsername === oldBonusWinnerUsername
+    ) {
+      return;
+    }
+
+    await setDoc(
+      doc(db, "tiebreaker2026", "settings"),
+      {
+        bonusWinnerUid: newBonusWinnerUid,
+        bonusWinnerUsername: newBonusWinnerUsername,
+        lastCalculatedAt: new Date().toISOString(),
+      },
+      { merge: true }
+    );
+  };
+
   /*
     ONE source of truth for 2026 scoring.
 
@@ -173,6 +310,8 @@ export const Tournament2026Provider = ({ children }) => {
     - userPicks2026
     - regionalPicks2026
     - superRegionalPicks2026
+    - tiebreaker2026/settings
+    - tiebreakerPicks2026
 
     Then it writes the correct total to users2026/{uid}.score.
   */
@@ -183,6 +322,9 @@ export const Tournament2026Provider = ({ children }) => {
       const superRegionalsSnap = await getDoc(
         doc(db, "superRegionals2026", "regions")
       );
+      const tiebreakerSettingsSnap = await getDoc(
+        doc(db, "tiebreaker2026", "settings")
+      );
 
       const gamesData = gamesSnap.exists() ? gamesSnap.data() || {} : {};
       const regionalsData = regionalsSnap.exists()
@@ -190,6 +332,10 @@ export const Tournament2026Provider = ({ children }) => {
         : {};
       const superRegionalsData = superRegionalsSnap.exists()
         ? superRegionalsSnap.data() || {}
+        : {};
+
+      const currentTiebreakerSettings = tiebreakerSettingsSnap.exists()
+        ? tiebreakerSettingsSnap.data() || {}
         : {};
 
       if (
@@ -208,6 +354,9 @@ export const Tournament2026Provider = ({ children }) => {
       const superRegionalPicksSnapshot = await getDocs(
         collection(db, "superRegionalPicks2026")
       );
+      const tiebreakerPredictionsSnapshot = await getDocs(
+        collection(db, "tiebreakerPicks2026")
+      );
 
       const cwsPicksByUser = {};
       cwsPicksSnapshot.forEach((pickDoc) => {
@@ -223,6 +372,23 @@ export const Tournament2026Provider = ({ children }) => {
       superRegionalPicksSnapshot.forEach((pickDoc) => {
         superRegionalPicksByUser[pickDoc.id] = pickDoc.data() || {};
       });
+
+      const predictionsByUser = {};
+      tiebreakerPredictionsSnapshot.forEach((predictionDoc) => {
+        predictionsByUser[predictionDoc.id] = predictionDoc.data() || {};
+      });
+
+      const builtInTiebreakerWinner = getBuiltInTiebreakerWinner({
+        settings: currentTiebreakerSettings,
+        predictionsByUser,
+        usersSnapshot,
+        cwsPicksByUser,
+        gamesData,
+      });
+
+      const builtInBonusAmount = Number(
+        currentTiebreakerSettings.bonusAmount ?? 0.5
+      );
 
       const updates = usersSnapshot.docs.map(async (userDoc) => {
         const uid = userDoc.id;
@@ -242,10 +408,21 @@ export const Tournament2026Provider = ({ children }) => {
           srPicks,
           superRegionalsData
         );
-        const adjustment = getTiebreakerAdjustment(uid, username);
+
+        const manualAdjustment = getManualTiebreakerAdjustment(uid, username);
+
+        const builtInTiebreakerAdjustment =
+          builtInTiebreakerWinner?.uid === uid &&
+          Number.isFinite(builtInBonusAmount)
+            ? builtInBonusAmount
+            : 0;
 
         const totalScore =
-          cwsScore + regionalScore + superRegionalScore + adjustment;
+          cwsScore +
+          regionalScore +
+          superRegionalScore +
+          manualAdjustment +
+          builtInTiebreakerAdjustment;
 
         const currentScore = Number(userData.score ?? 0);
 
@@ -262,6 +439,11 @@ export const Tournament2026Provider = ({ children }) => {
       });
 
       await Promise.all(updates);
+
+      await maybeUpdateTiebreakerWinnerFields(
+        currentTiebreakerSettings,
+        builtInTiebreakerWinner
+      );
     } catch (error) {
       console.error("Failed to recalculate 2026 scores:", error);
     }
@@ -419,6 +601,84 @@ export const Tournament2026Provider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
+  // Subscribe to 2026 tiebreaker settings
+  useEffect(() => {
+    const settingsRef = doc(db, "tiebreaker2026", "settings");
+
+    const unsubscribe = onSnapshot(
+      settingsRef,
+      async (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data() || {};
+
+          setTiebreakerSettings({
+            active: data.active === true,
+            testMode: data.testMode !== false,
+            predictionOpen: data.predictionOpen === true,
+            eligibleUsernames: Array.isArray(data.eligibleUsernames)
+              ? data.eligibleUsernames
+              : ["loganbeach13", "log"],
+            eligibleUserIds: Array.isArray(data.eligibleUserIds)
+              ? data.eligibleUserIds
+              : [],
+            actualTotalRuns:
+              data.actualTotalRuns === undefined ? null : data.actualTotalRuns,
+            bonusAmount: Number(data.bonusAmount ?? 0.5),
+            bonusWinnerUid: data.bonusWinnerUid || "",
+            bonusWinnerUsername: data.bonusWinnerUsername || "",
+          });
+
+          recalculateAndSaveAllUserScores();
+        } else {
+          const defaultSettings = {
+            active: false,
+            testMode: true,
+            predictionOpen: false,
+            eligibleUsernames: ["loganbeach13", "log"],
+            eligibleUserIds: [],
+            actualTotalRuns: null,
+            bonusAmount: 0.5,
+            bonusWinnerUid: "",
+            bonusWinnerUsername: "",
+            updatedAt: new Date().toISOString(),
+          };
+
+          await setDoc(settingsRef, defaultSettings, { merge: true });
+          setTiebreakerSettings(defaultSettings);
+        }
+      },
+      (error) => {
+        console.error("2026 tiebreaker settings snapshot error:", error);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  // Subscribe to 2026 tiebreaker predictions
+  useEffect(() => {
+    const predictionsRef = collection(db, "tiebreakerPicks2026");
+
+    const unsubscribe = onSnapshot(
+      predictionsRef,
+      (snapshot) => {
+        const predictions = {};
+
+        snapshot.forEach((predictionDoc) => {
+          predictions[predictionDoc.id] = predictionDoc.data() || {};
+        });
+
+        setTiebreakerPredictions(predictions);
+        recalculateAndSaveAllUserScores();
+      },
+      (error) => {
+        console.error("2026 tiebreaker predictions snapshot error:", error);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
   // Subscribe to 2026 tournament complete setting
   useEffect(() => {
     const configRef = doc(db, "config", "tournament2026");
@@ -460,7 +720,9 @@ export const Tournament2026Provider = ({ children }) => {
             user2026Ref,
             {
               username:
-                firebaseUser.displayName || firebaseUser.email || firebaseUser.uid,
+                firebaseUser.displayName ||
+                firebaseUser.email ||
+                firebaseUser.uid,
               score: 0,
             },
             { merge: true }
@@ -603,6 +865,51 @@ export const Tournament2026Provider = ({ children }) => {
     await recalculateAndSaveAllUserScores();
   };
 
+  const saveTiebreakerPrediction = async (userId, username, predictedRuns) => {
+    const predictionNumber = Number(predictedRuns);
+
+    if (!Number.isFinite(predictionNumber) || predictionNumber < 0) {
+      throw new Error("Prediction must be a valid number.");
+    }
+
+    const gamesSnap = await getDoc(doc(db, "tournament2026", "games"));
+    const gamesData = gamesSnap.exists() ? gamesSnap.data() || {} : {};
+    const finalGameLocked = gamesData?.["15"]?.locked === true;
+
+    if (finalGameLocked) {
+      throw new Error("Tiebreaker predictions are locked.");
+    }
+
+    const settingsSnap = await getDoc(doc(db, "tiebreaker2026", "settings"));
+    const settingsData = settingsSnap.exists() ? settingsSnap.data() || {} : {};
+
+    if (!settingsData.active || !settingsData.predictionOpen) {
+      throw new Error("Tiebreaker predictions are not currently open.");
+    }
+
+    const isEligible = userIsTiebreakerEligible(userId, username, settingsData);
+
+    if (!isEligible) {
+      throw new Error("You are not eligible for the tiebreaker.");
+    }
+
+    const predictionRef = doc(db, "tiebreakerPicks2026", userId);
+
+    await setDoc(
+      predictionRef,
+      {
+        username: username || userId,
+        predictedRuns: predictionNumber,
+        updatedAt: new Date().toISOString(),
+      },
+      { merge: true }
+    );
+
+    showPickToast("✅ Tiebreaker saved");
+
+    await recalculateAndSaveAllUserScores();
+  };
+
   // Admin/general update to a specific CWS game field(s) in 2026 doc
   const updateGame = async (id, updatedData) => {
     const gamesDocRef = doc(db, "tournament2026", "games");
@@ -657,6 +964,13 @@ export const Tournament2026Provider = ({ children }) => {
     await recalculateAndSaveAllUserScores();
   };
 
+  const currentUserDataForTiebreaker = user
+    ? {
+        uid: user.uid,
+        prediction: tiebreakerPredictions?.[user.uid] || null,
+      }
+    : null;
+
   return (
     <Tournament2026Context.Provider
       value={{
@@ -693,6 +1007,13 @@ export const Tournament2026Provider = ({ children }) => {
         updateTournamentComplete,
 
         tiebreakerAdjustments,
+        tiebreakerSettings,
+        tiebreakerPredictions,
+        currentUserDataForTiebreaker,
+        saveTiebreakerPrediction,
+
+        userIsTiebreakerEligible,
+
         pickToast,
       }}
     >
