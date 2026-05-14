@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Tournament2026Provider } from "../context/Tournament2026Context";
+import {
+  Tournament2026Provider,
+  useTournament2026,
+} from "../context/Tournament2026Context";
 import Bracket2026 from "../components/Bracket2026";
 import Leaderboard2026 from "../components/Leaderboard2026";
 import { auth } from "../firebase";
@@ -11,6 +14,18 @@ import { useNavigate } from "react-router-dom";
 import SuperRegionals2026 from "../components/SuperRegionals2026";
 import Regionals2026 from "../components/Regionals2026";
 import MyPicksSummary2026 from "../components/MyPicksSummary2026";
+
+function PickSavedToast() {
+  const { pickToast } = useTournament2026();
+
+  if (!pickToast) return null;
+
+  return (
+    <div className="pick-toast" key={pickToast.id}>
+      {pickToast.message}
+    </div>
+  );
+}
 
 function Tournament2026Page({ isAdmin = false }) {
   const navigate = useNavigate();
@@ -170,7 +185,9 @@ function Tournament2026Page({ isAdmin = false }) {
       {/* Page Content */}
       <div style={{ flex: 1 }}>
         <Tournament2026Provider>
+          <PickSavedToast />
           <MyPicksSummary2026 />
+
           {/* Regionals separator */}
           <button
             type="button"
@@ -226,13 +243,14 @@ function Tournament2026Page({ isAdmin = false }) {
           </div>
 
           <Bracket2026 isAdmin={isAdmin} />
+
           <div className="omaha-final-eight-divider leaderboard-history-divider">
             <div className="omaha-divider-line"></div>
             <div className="omaha-divider-text leaderboard-history-divider-text">
-            <span className="omaha-divider-main">Leaderboard & History</span>
-              </div>
-              <div className="omaha-divider-line"></div>
+              <span className="omaha-divider-main">Leaderboard & History</span>
             </div>
+            <div className="omaha-divider-line"></div>
+          </div>
 
           {/* Grid: left panel, leaderboard, right panel */}
           <div className="tourny-2026-grid">
@@ -251,6 +269,7 @@ function Tournament2026Page({ isAdmin = false }) {
             <div className="leaderboard-2026-wrap">
               <Leaderboard2026 currentUsername={usernameDisplay} />
             </div>
+
             {/* Past Winners */}
             <div className="tourny-2026-panel past-winners">
               <h3>Past Winners</h3>

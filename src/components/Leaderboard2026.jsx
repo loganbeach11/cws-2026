@@ -17,6 +17,7 @@ function Leaderboard2026({ currentUsername }) {
           const points = Number(data.score ?? 0);
 
           return {
+            uid: doc.id,
             username,
             points,
           };
@@ -70,14 +71,21 @@ function Leaderboard2026({ currentUsername }) {
     return ranked;
   };
 
-  const renderRank = (rank, isTied) => {
-    const prefix = isTied ? "(Tie) " : "";
+  const getOrdinal = (rank) => {
+    const suffixes = ["th", "st", "nd", "rd"];
+    const value = rank % 100;
+    return `${rank}${suffixes[(value - 20) % 10] || suffixes[value] || suffixes[0]}`;
+  };
 
-    if (rank === 1) return `${prefix}🥇`;
-    if (rank === 2) return `${prefix}🥈`;
-    if (rank === 3) return `${prefix}🥉`;
+  const renderRankLabel = (rank, isTied) => {
+    return isTied ? `T-${getOrdinal(rank)}` : getOrdinal(rank);
+  };
 
-    return `${prefix}${rank}.`;
+  const renderMedal = (rank) => {
+    if (rank === 1) return "🥇";
+    if (rank === 2) return "🥈";
+    if (rank === 3) return "🥉";
+    return "";
   };
 
   const rankedUsers = getRankedUsers();
@@ -86,25 +94,45 @@ function Leaderboard2026({ currentUsername }) {
     <div className="leaderboard">
       <h2>🏆 Leaderboard 🏆</h2>
 
-      <ol>
-        {rankedUsers.map((user) => (
-          <li key={user.username}>
-            <span>
-              {renderRank(user.rank, user.isTied)}{" "}
-              <span
-                className={
-                  currentUsername &&
-                  user.username.toLowerCase() === currentUsername.toLowerCase()
-                    ? "highlight-user"
-                    : ""
-                }
-              >
-                {user.username} - {user.points}{" "}
-                {user.points === 1 ? "point" : "points"}
-              </span>
-            </span>
-          </li>
-        ))}
+      <ol className="leaderboard-list">
+        {rankedUsers.map((user) => {
+          const isCurrentUser =
+            currentUsername &&
+            user.username.toLowerCase() === currentUsername.toLowerCase();
+
+          return (
+            <li
+              key={user.uid || user.username}
+              className={`leaderboard-row rank-${user.rank} ${
+                isCurrentUser ? "current-user-row" : ""
+              }`}
+            >
+              <div className="leaderboard-left">
+                <span className="leaderboard-rank">
+                  {renderRankLabel(user.rank, user.isTied)}
+                </span>
+
+                <span className="leaderboard-medal">
+                  {renderMedal(user.rank)}
+                </span>
+
+                <span
+                  className={`leaderboard-name ${
+                    isCurrentUser ? "highlight-user" : ""
+                  }`}
+                >
+                  {user.username}
+                </span>
+
+                {isCurrentUser && <span className="you-badge">YOU</span>}
+              </div>
+
+              <div className="leaderboard-points">
+                {user.points} {user.points === 1 ? "pt" : "pts"}
+              </div>
+            </li>
+          );
+        })}
       </ol>
     </div>
   );

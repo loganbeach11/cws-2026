@@ -1,5 +1,5 @@
 // src/context/Tournament2026Context.jsx
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { db } from "../firebase";
 import { auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -29,6 +29,9 @@ export const Tournament2026Provider = ({ children }) => {
 
   const [lockStatus, setLockStatus] = useState({});
   const [tournamentComplete, setTournamentComplete] = useState(false);
+
+  const [pickToast, setPickToast] = useState(null);
+  const pickToastTimerRef = useRef(null);
 
   /*
     MANUAL TIEBREAKER ADJUSTMENTS
@@ -94,6 +97,21 @@ export const Tournament2026Provider = ({ children }) => {
 
   const normalizePick = (value) => {
     return (value || "").toString().trim().toLowerCase();
+  };
+
+  const showPickToast = (message) => {
+    if (pickToastTimerRef.current) {
+      clearTimeout(pickToastTimerRef.current);
+    }
+
+    setPickToast({
+      message,
+      id: Date.now(),
+    });
+
+    pickToastTimerRef.current = setTimeout(() => {
+      setPickToast(null);
+    }, 1500);
   };
 
   const calculateCwsScoreFromData = (picks, gamesData) => {
@@ -248,6 +266,14 @@ export const Tournament2026Provider = ({ children }) => {
       console.error("Failed to recalculate 2026 scores:", error);
     }
   };
+
+  useEffect(() => {
+    return () => {
+      if (pickToastTimerRef.current) {
+        clearTimeout(pickToastTimerRef.current);
+      }
+    };
+  }, []);
 
   // Subscribe to 2026 games doc; seed if missing or empty
   useEffect(() => {
@@ -526,8 +552,12 @@ export const Tournament2026Provider = ({ children }) => {
           await setDoc(userDocRef, {});
         }
       );
+
+      showPickToast("Pick removed");
     } else {
       await setDoc(userDocRef, { [gameId]: teamName }, { merge: true });
+
+      showPickToast("✅ Pick saved");
     }
 
     await recalculateAndSaveAllUserScores();
@@ -542,8 +572,12 @@ export const Tournament2026Provider = ({ children }) => {
           await setDoc(userDocRef, {});
         }
       );
+
+      showPickToast("Pick removed");
     } else {
       await setDoc(userDocRef, { [regionalId]: teamName }, { merge: true });
+
+      showPickToast("✅ Pick saved");
     }
 
     await recalculateAndSaveAllUserScores();
@@ -558,8 +592,12 @@ export const Tournament2026Provider = ({ children }) => {
           await setDoc(userDocRef, {});
         }
       );
+
+      showPickToast("Pick removed");
     } else {
       await setDoc(userDocRef, { [regionId]: teamName }, { merge: true });
+
+      showPickToast("✅ Pick saved");
     }
 
     await recalculateAndSaveAllUserScores();
@@ -655,6 +693,7 @@ export const Tournament2026Provider = ({ children }) => {
         updateTournamentComplete,
 
         tiebreakerAdjustments,
+        pickToast,
       }}
     >
       {children}
