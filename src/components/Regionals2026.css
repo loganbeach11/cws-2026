@@ -129,11 +129,20 @@
     .regionals-section {
       width: calc(100% - 20px);
       padding: 14px;
-      margin-top: 20px;
+      margin: 20px auto 10px auto;
+      box-sizing: border-box;
+      overflow-x: hidden;
     }
   
     .regionals-grid {
       grid-template-columns: 1fr;
+      width: 100%;
+      box-sizing: border-box;
+    }
+  
+    .regional-card {
+      width: 100%;
+      box-sizing: border-box;
     }
   
     .regionals-header h2 {

@@ -104,19 +104,44 @@
     margin: 0;
     padding: 0;
     width: 100%;
+    min-height: 100%;
+    background-color: navy;
+  }
+
+  body.login-lock,
+  html.login-lock {
     height: 100dvh !important;
     min-height: 100dvh !important;
     max-height: 100dvh !important;
     overflow: hidden !important;
     overscroll-behavior: none;
-    position: fixed;
-    inset: 0;
+  }
+
+  body:not(.login-lock),
+  html:not(.login-lock) {
+    height: auto !important;
+    min-height: 100% !important;
+    max-height: none !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    position: static !important;
+  }
+
+  #root {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    position: static !important;
+  }
+
+  body.login-lock #root {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
   }
 
   .page-wrapper {
-    position: fixed;
-    inset: 0;
-
     width: 100vw;
     height: 100dvh;
     min-height: 100dvh;
@@ -135,6 +160,11 @@
 
     background-position: center;
     background-size: cover;
+  }
+
+  body.login-lock .page-wrapper {
+    position: fixed;
+    inset: 0;
   }
 
   .auth-form-container {
@@ -187,6 +217,12 @@ html {
   html.login-lock {
     overflow: hidden !important;
     height: 100vh;
+  }
+
+  body:not(.login-lock),
+  html:not(.login-lock) {
+    overflow-y: auto !important;
+    height: auto;
   }
 
   .page-wrapper {

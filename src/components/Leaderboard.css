@@ -41,7 +41,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  line-height: 1.1;
+  line-height: 1.25;
   box-sizing: border-box;
 }
 
@@ -71,6 +71,7 @@
   gap: 5px;
   min-width: 0;
   flex: 1;
+  line-height: 1.25;
 }
 
 .leaderboard-rank {
@@ -79,6 +80,7 @@
   color: #1d3557;
   font-weight: 900;
   font-size: 0.95rem;
+  line-height: 1.25;
 }
 
 .leaderboard-medal {
@@ -86,6 +88,7 @@
   width: 22px;
   text-align: center;
   font-size: 1.05rem;
+  line-height: 1.25;
 }
 
 .leaderboard-name {
@@ -96,6 +99,8 @@
   color: #111;
   font-weight: 900;
   font-size: 1.15rem;
+  line-height: 1.25;
+  padding-bottom: 1px;
 }
 
 .highlight-user {
@@ -113,6 +118,7 @@
   font-size: 0.6rem;
   font-weight: 900;
   letter-spacing: 0.5px;
+  line-height: 1.2;
 }
 
 .leaderboard-points {
@@ -121,6 +127,7 @@
   font-weight: 900;
   white-space: nowrap;
   font-size: 1.15rem;
+  line-height: 1.25;
 }
 
 @media (max-width: 600px) {
@@ -145,35 +152,43 @@
 
   .leaderboard-row,
   .leaderboard li {
-    padding: 9px 10px !important;
+    padding: 10px 10px !important;
     font-size: 0.95rem;
     gap: 7px;
+    line-height: 1.25;
   }
 
   .leaderboard-left {
     gap: 5px;
+    line-height: 1.25;
   }
 
   .leaderboard-rank {
     min-width: 42px;
     font-size: 0.85rem;
+    line-height: 1.25;
   }
 
   .leaderboard-medal {
     width: 18px;
     font-size: 0.95rem;
+    line-height: 1.25;
   }
 
   .leaderboard-name {
     font-size: 1rem;
+    line-height: 1.25;
+    padding-bottom: 1px;
   }
 
   .leaderboard-points {
     font-size: 1rem;
+    line-height: 1.25;
   }
 
   .you-badge {
     padding: 2px 6px;
     font-size: 0.6rem;
+    line-height: 1.2;
   }
 }
