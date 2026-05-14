@@ -42,6 +42,15 @@ function Game2026({ gameId, isAdmin }) {
     if (isAdmin) updateGame(gameId, { locked: !game.locked });
   };
 
+  const hasAnyRealTeam = () => {
+    return (
+      (normalizePick(game.team1) !== "" &&
+        normalizePick(game.team1) !== "tbd") ||
+      (normalizePick(game.team2) !== "" &&
+        normalizePick(game.team2) !== "tbd")
+    );
+  };
+
   const renderTeam = (teamKey) => {
     const actualName = game[teamKey] || "TBD";
     const isTBD = actualName.trim().toUpperCase() === "TBD";
@@ -144,8 +153,21 @@ function Game2026({ gameId, isAdmin }) {
     );
   };
 
+  const shouldShowLockStatus = game.locked || hasAnyRealTeam();
+
   return (
     <div className="game-box">
+      {shouldShowLockStatus && (
+        <span
+          className={`game-status-emoji ${
+            game.locked ? "game-status-locked" : "game-status-open"
+          }`}
+          title={game.locked ? "Locked" : "Open"}
+        >
+          {game.locked ? "🔒" : "🔓"}
+        </span>
+      )}
+
       {renderTeam("team1")}
       <span className="vs">vs</span>
       {renderTeam("team2")}

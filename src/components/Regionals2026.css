@@ -75,6 +75,18 @@
   
   .regional-team {
     min-height: 35px;
+    cursor: pointer;
+  }
+  
+  .regional-team.picked:hover {
+    cursor: pointer;
+  }
+  
+  .regional-team.locked,
+  .regional-team.disabled,
+  .regional-team.locked:hover,
+  .regional-team.disabled:hover {
+    cursor: default !important;
   }
   
   .regional-admin-controls {
@@ -153,3 +165,24 @@
       font-size: 0.85rem;
     }
   }
+  /* Cursor behavior for selectable Regional teams */
+.regional-team,
+.regional-team *,
+.regional-team.picked,
+.regional-team.picked *,
+.regional-team.picked:hover,
+.regional-team.picked:hover * {
+  cursor: pointer !important;
+}
+
+/* Locked/disabled Regionals should NOT show hand cursor */
+.regional-team.locked,
+.regional-team.locked *,
+.regional-team.disabled,
+.regional-team.disabled *,
+.regional-team.locked:hover,
+.regional-team.locked:hover *,
+.regional-team.disabled:hover,
+.regional-team.disabled:hover * {
+  cursor: default !important;
+}

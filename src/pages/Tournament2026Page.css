@@ -94,12 +94,12 @@
   .tourny-2026-grid {
     display: grid;
     grid-template-columns: 1fr;
-    row-gap: 16px;
+    row-gap: 8px;
     column-gap: 0;
     width: 100%;
     max-width: 100%;
     padding: 0 12px;
-    margin: 24px auto 0 auto;
+    margin: 20px auto 0 auto;
     box-sizing: border-box;
     justify-items: center;
     overflow-x: hidden;
@@ -140,6 +140,7 @@
 @media (max-width: 500px) {
   .tourny-2026-grid {
     padding: 0 10px;
+    row-gap: 8px;
   }
 
   .leaderboard-2026-wrap,
@@ -162,7 +163,14 @@
   }
 
   .past-winners .winner-line {
-    font-size: 1.05rem;
+    font-size: 1.15rem;
+  }
+  .tourny-2026-panel.past-winners h3 {
+    font-size: 1.35rem;
+  }
+  
+  .past-winners .winner-link {
+    font-size: 1.15rem;
   }
 }
 
@@ -635,4 +643,134 @@
   background: #eeeeee;
   color: #555;
   cursor: not-allowed;
+}
+/* Rules card + picks summary layout */
+.summary-rules-row {
+  width: min(1280px, calc(100% - 32px));
+  margin: 24px auto 0 auto;
+  display: grid;
+  grid-template-columns: 280px minmax(850px, 1fr);
+  align-items: center;
+  gap: 24px;
+  box-sizing: border-box;
+}
+
+.scoring-rules-card {
+  background: #f9f9f9;
+  border: 2px solid #999;
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  box-sizing: border-box;
+  align-self: center;
+}
+
+.scoring-rules-card h3 {
+  margin: 0 0 10px 0;
+  color: navy;
+  font-size: 1.15rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.scoring-rules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.scoring-rule-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  padding: 7px 10px;
+  color: #222;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.scoring-rule-row strong {
+  color: navy;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.scoring-rule-row.tiebreaker-rule {
+  background: #fff7d6;
+  border-color: #d4a017;
+}
+
+/* Make My Picks Summary wider/horizontal on desktop */
+.summary-rules-row .picks-summary,
+.summary-rules-row .my-picks-summary,
+.summary-rules-row .picks-summary-card {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  box-sizing: border-box;
+  align-self: center;
+}
+
+/* Helps keep the summary badges in one desktop row */
+.summary-rules-row .picks-summary-badges,
+.summary-rules-row .summary-badges,
+.summary-rules-row .summary-stats,
+.summary-rules-row .picks-summary-row {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+@media (max-width: 1250px) {
+  .summary-rules-row {
+    width: min(1120px, calc(100% - 32px));
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (max-width: 900px) {
+  .summary-rules-row {
+    width: calc(100% - 20px);
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 18px;
+  }
+
+  .scoring-rules-card {
+    width: 100%;
+  }
+
+  .summary-rules-row .picks-summary,
+  .summary-rules-row .my-picks-summary,
+  .summary-rules-row .picks-summary-card {
+    width: 100%;
+  }
+
+  .summary-rules-row .picks-summary-badges,
+  .summary-rules-row .summary-badges,
+  .summary-rules-row .summary-stats,
+  .summary-rules-row .picks-summary-row {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 500px) {
+  .scoring-rules-card {
+    padding: 12px;
+  }
+
+  .scoring-rules-card h3 {
+    font-size: 1.05rem;
+  }
+
+  .scoring-rule-row {
+    font-size: 0.82rem;
+    padding: 7px 9px;
+  }
 }

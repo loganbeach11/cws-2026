@@ -29,6 +29,36 @@ function PickSavedToast() {
   );
 }
 
+function ScoringRulesCard2026() {
+  return (
+    <div className="scoring-rules-card">
+      <h3>Scoring Rules</h3>
+
+      <div className="scoring-rules-list">
+        <div className="scoring-rule-row">
+          <span>Regionals</span>
+          <strong>1 pt each</strong>
+        </div>
+
+        <div className="scoring-rule-row">
+          <span>Super Regionals</span>
+          <strong>1 pt each</strong>
+        </div>
+
+        <div className="scoring-rule-row">
+          <span>CWS Games</span>
+          <strong>1 pt each</strong>
+        </div>
+
+        <div className="scoring-rule-row tiebreaker-rule">
+          <span>Tiebreaker</span>
+          <strong>+0.5 if needed</strong>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Tournament2026Page({ isAdmin = false }) {
   const navigate = useNavigate();
 
@@ -174,8 +204,7 @@ function Tournament2026Page({ isAdmin = false }) {
 
         {user && (
           <div className="header-score">
-            {usernameDisplay} - {userScore}{" "}
-            {userScore === 1 ? "point" : "points"}
+            {usernameDisplay} · {userScore} {userScore === 1 ? "pt" : "pts"}
           </div>
         )}
       </div>
@@ -186,7 +215,10 @@ function Tournament2026Page({ isAdmin = false }) {
 
           {isAdmin && <TiebreakerAdminControls2026 />}
 
-          <MyPicksSummary2026 />
+          <div className="summary-rules-row">
+            <ScoringRulesCard2026 />
+            <MyPicksSummary2026 />
+          </div>
 
           <TiebreakerPrediction2026 currentUsername={usernameDisplay} />
 

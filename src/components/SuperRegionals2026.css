@@ -75,8 +75,20 @@
   
   .super-regional-team {
     min-height: 35px;
+    cursor: pointer;
   }
   
+  .super-regional-team.picked:hover {
+    cursor: pointer;
+  }
+  
+  .super-regional-team.locked,
+  .super-regional-team.disabled,
+  .super-regional-team.locked:hover,
+  .super-regional-team.disabled:hover {
+    cursor: default !important;
+  }
+
   .super-regional-vs {
     font-weight: 800;
     color: #555;
@@ -175,3 +187,24 @@
     padding: 4px 6px;
     box-sizing: border-box;
   }
+  /* Cursor behavior for selectable Super Regional teams */
+.super-regional-team,
+.super-regional-team *,
+.super-regional-team.picked,
+.super-regional-team.picked *,
+.super-regional-team.picked:hover,
+.super-regional-team.picked:hover * {
+  cursor: pointer !important;
+}
+
+/* Locked/disabled Super Regionals should NOT show hand cursor */
+.super-regional-team.locked,
+.super-regional-team.locked *,
+.super-regional-team.disabled,
+.super-regional-team.disabled *,
+.super-regional-team.locked:hover,
+.super-regional-team.locked:hover *,
+.super-regional-team.disabled:hover,
+.super-regional-team.disabled:hover * {
+  cursor: default !important;
+}

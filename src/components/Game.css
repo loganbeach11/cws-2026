@@ -137,6 +137,7 @@ span.winner-highlight {
 /* Preserve hover color for picked but not for correct/incorrect */
 .team.picked:hover {
   background-color: #cce5ff;
+  cursor: pointer;
 }
 
 /* Prevent hover effect for locked games */
@@ -185,7 +186,7 @@ span.winner-highlight {
 }
 
 .team-label.very-long-team-name {
-  font-size: 0.86em;
+  font-size: 0.9em;
 }
 
 /* Smaller font size for "Loser Game 11/12 (if first loss)" */
@@ -200,4 +201,46 @@ span.winner-highlight {
   flex-shrink: 0;
   margin-right: 1px;
   font-size: 0.85em;
+}
+
+/* Cursor behavior for selectable CWS teams */
+.team,
+.team *,
+.team.picked,
+.team.picked *,
+.team.picked:hover,
+.team.picked:hover * {
+  cursor: pointer !important;
+}
+
+/* Locked/disabled games should NOT show hand cursor */
+.team.locked,
+.team.locked *,
+.team.disabled,
+.team.disabled *,
+.team.locked:hover,
+.team.locked:hover *,
+.team.disabled:hover,
+.team.disabled:hover * {
+  cursor: default !important;
+}
+
+/* Tiny CWS bracket lock/open emoji — does not affect layout */
+.game-status-emoji {
+  position: absolute;
+  top: 2px;
+  right: 1px;
+  z-index: 5;
+  font-size: 0.72rem;
+  line-height: 1;
+  pointer-events: none;
+  opacity: 0.92;
+}
+
+.game-status-open {
+  filter: saturate(1.15);
+}
+
+.game-status-locked {
+  filter: saturate(1.2);
 }

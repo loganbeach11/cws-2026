@@ -36,6 +36,31 @@ function MyPicksSummary2026() {
     return (value || "").toString().trim().toLowerCase();
   };
 
+  const isFilledTeam = (value) => {
+    const normalized = normalizePick(value);
+    return normalized !== "" && normalized !== "tbd";
+  };
+
+  const regionalIsAvailable = (regional) => {
+    return (
+      regional &&
+      isFilledTeam(regional.team1) &&
+      isFilledTeam(regional.team2) &&
+      isFilledTeam(regional.team3) &&
+      isFilledTeam(regional.team4) &&
+      regional.locked !== true
+    );
+  };
+
+  const twoTeamGameIsAvailable = (game) => {
+    return (
+      game &&
+      isFilledTeam(game.team1) &&
+      isFilledTeam(game.team2) &&
+      game.locked !== true
+    );
+  };
+
   const getOrdinal = (rank) => {
     const lastDigit = rank % 10;
     const lastTwoDigits = rank % 100;
@@ -97,6 +122,22 @@ function MyPicksSummary2026() {
     return { correct, locked };
   };
 
+  const getMissingPicksCount = (items, picks, isAvailableFn) => {
+    let missing = 0;
+
+    Object.entries(items || {}).forEach(([id, item]) => {
+      if (!isAvailableFn(item)) return;
+
+      const pick = picks?.[id];
+
+      if (!isFilledTeam(pick)) {
+        missing += 1;
+      }
+    });
+
+    return missing;
+  };
+
   const summary = useMemo(() => {
     const regionalRecord = getSectionRecord(regionals, regionalPicks);
     const superRegionalRecord = getSectionRecord(
@@ -104,6 +145,26 @@ function MyPicksSummary2026() {
       superRegionalPicks
     );
     const cwsRecord = getSectionRecord(games, userPicks);
+
+    const missingRegionals = getMissingPicksCount(
+      regionals,
+      regionalPicks,
+      regionalIsAvailable
+    );
+
+    const missingSuperRegionals = getMissingPicksCount(
+      superRegionals,
+      superRegionalPicks,
+      twoTeamGameIsAvailable
+    );
+
+    const missingCws = getMissingPicksCount(
+      games,
+      userPicks,
+      twoTeamGameIsAvailable
+    );
+
+    const totalMissing = missingRegionals + missingSuperRegionals + missingCws;
 
     const totalCorrect =
       regionalRecord.correct +
@@ -124,6 +185,10 @@ function MyPicksSummary2026() {
       cwsRecord,
       totalCorrect,
       totalLocked,
+      missingRegionals,
+      missingSuperRegionals,
+      missingCws,
+      totalMissing,
     };
   }, [
     games,
@@ -181,6 +246,24 @@ function MyPicksSummary2026() {
             {summary.totalCorrect}/{summary.totalLocked}
           </span>
         </div>
+      </div>
+
+      <div
+        className={`missing-picks-strip ${
+          summary.totalMissing === 0 ? "all-picks-complete" : "has-missing-picks"
+        }`}
+      >
+        {summary.totalMissing === 0 ? (
+          <span>✅ All available picks completed</span>
+        ) : (
+          <span>
+            ⚠️ Missing Picks: <strong>{summary.totalMissing}</strong>
+            <span className="missing-picks-breakdown">
+              Regionals {summary.missingRegionals} · Super Regionals{" "}
+              {summary.missingSuperRegionals} · CWS {summary.missingCws}
+            </span>
+          </span>
+        )}
       </div>
     </section>
   );
