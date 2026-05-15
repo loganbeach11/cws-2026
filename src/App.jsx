@@ -14,6 +14,7 @@ import Tournament2026Page from "./pages/Tournament2026Page";
 import WinnerScreen from "./components/WinnerScreen";
 import LoserScreen from "./components/LoserScreen";
 import Brandon2025BracketPage from "./pages/Brandon2025BracketPage";
+import Analytics2025Page from "./pages/Analytics2025Page";
 
 import { getDoc, updateDoc, doc, onSnapshot } from "firebase/firestore";
 import { db } from "./firebase";
@@ -129,7 +130,7 @@ function App() {
           <h1 className="header-title">⚾ 2026 CWS Bracket ⚾</h1>
         </div>
       )}
-
+  
       {/* Show 2025 Header ONLY on /tournament */}
       {location.pathname === "/tournament" && (
         <div className="header">
@@ -153,9 +154,9 @@ function App() {
               </label>
             </div>
           )}
-
+  
           <h1 className="header-title">⚾ 2025 CWS Bracket ⚾</h1>
-
+  
           {user && (
             <div className="header-score">
               {usernameDisplay} - {userScore}{" "}
@@ -164,7 +165,7 @@ function App() {
           )}
         </div>
       )}
-
+  
       {/* Page Content */}
       <div style={{ flex: 1 }}>
         <Routes>
@@ -174,7 +175,7 @@ function App() {
               <AuthForm setUser={handleLogin} onAdminLogin={loginAsAdmin} />
             }
           />
-
+  
           <Route
             path="/tournament"
             element={
@@ -188,22 +189,22 @@ function App() {
               )
             }
           />
-
+  
           <Route
             path="/winner"
             element={user ? <WinnerScreen /> : <Navigate to="/" />}
           />
-
+  
           <Route
             path="/loser"
             element={user ? <LoserScreen /> : <Navigate to="/" />}
           />
-
+  
           <Route
             path="/LoserScreen"
             element={<Navigate to="/loser" replace />}
           />
-
+  
           <Route
             path="/tournament2026"
             element={
@@ -214,7 +215,7 @@ function App() {
               )
             }
           />
-
+  
           <Route
             path="/admin2026"
             element={
@@ -225,7 +226,20 @@ function App() {
               )
             }
           />
-
+  
+          <Route
+            path="/analytics2025"
+            element={
+              user && isAdmin ? (
+                <Analytics2025Page />
+              ) : user ? (
+                <Navigate to="/tournament2026" replace />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+  
           <Route
             path="/tournament2025/brandon"
             element={<Brandon2025BracketPage />}
@@ -234,6 +248,6 @@ function App() {
       </div>
     </div>
   );
-}
-
-export default App;
+  }
+  
+  export default App;

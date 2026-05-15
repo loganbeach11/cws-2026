@@ -54,8 +54,9 @@ function ScoringRulesCard2026() {
           <span>Tiebreaker</span>
           <strong>+0.5 if needed</strong>
         </div>
+
         <div className="scoring-time-note">
-        ⏰ All lock times are in CST.
+          ⏰ All lock times are in CST.
         </div>
       </div>
     </div>
@@ -215,6 +216,18 @@ function Tournament2026Page({ isAdmin = false }) {
       <div style={{ flex: 1 }}>
         <Tournament2026Provider>
           <PickSavedToast />
+
+          {isAdmin && (
+            <div className="admin-analytics-access">
+              <button
+                type="button"
+                className="analytics-2025-top-btn"
+                onClick={() => navigate("/analytics2025")}
+              >
+                📊 Open 2025 Analytics Dashboard
+              </button>
+            </div>
+          )}
 
           {isAdmin && <TiebreakerAdminControls2026 />}
 
