@@ -227,17 +227,9 @@ function App() {
             }
           />
   
-          <Route
-            path="/analytics2025"
-            element={
-              user && isAdmin ? (
-                <Analytics2025Page />
-              ) : user ? (
-                <Navigate to="/tournament2026" replace />
-              ) : (
-                <Navigate to="/" />
-              )
-            }
+        <Route
+          path="/analytics2025"
+          element={user ? <Analytics2025Page /> : <Navigate to="/" />}
           />
   
           <Route

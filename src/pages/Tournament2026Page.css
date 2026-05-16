@@ -781,44 +781,95 @@
     padding: 7px 9px;
   }
 }
-/* Admin-only 2025 analytics access */
-.admin-analytics-access {
-  width: min(1180px, calc(100% - 32px));
-  margin: 18px auto 0 auto;
+/* 2025 History hub */
+.history-hub-card {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 24px;
   box-sizing: border-box;
 }
 
-.analytics-2025-top-btn {
-  border: 2px solid #d4a017;
-  background: #fff7d6;
-  color: navy;
-  border-radius: 999px;
-  padding: 10px 18px;
-  font-size: 1rem;
+.history-hub-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Cleaner section labels */
+.history-hub-label {
+  margin: 0;
+  color: #1d3557;
+  font-size: 1.05rem;
   font-weight: 900;
+  text-align: center;
+}
+
+/* Keep spacing between sections, but remove the visible line */
+.history-hub-divider {
+  width: 100%;
+  height: 0;
+  background: transparent;
+  margin: 18px 0 8px 0;
+}
+
+/* Make both 2025 buttons match */
+.history-hub-card .past-year-btn,
+.analytics-history-btn {
+  width: 190px;
+  max-width: 100%;
+  padding: 14px 18px;
+  font-size: 1.25rem;
+  font-weight: 900;
+  border-radius: 12px;
+  background: #f3f3f3 !important;
+  color: #111 !important;
+  border: 3px solid #111 !important;
+  box-shadow: 0 4px 9px rgba(0, 0, 0, 0.18);
   cursor: pointer;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22);
+  box-sizing: border-box;
   transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
 }
 
-.analytics-2025-top-btn:hover {
-  background: #ffeaa3;
+.history-hub-card .past-year-btn:hover,
+.analytics-history-btn:hover {
+  background: #e8e8e8 !important;
   transform: translateY(-1px);
-  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.26);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.22);
+}
+
+/* Add breathing room below the bottom cards */
+.tourny-2026-grid {
+  padding-bottom: 36px;
 }
 
 @media (max-width: 700px) {
-  .admin-analytics-access {
-    width: calc(100% - 20px);
-    margin-top: 14px;
+  .history-hub-card {
+    padding-bottom: 22px;
   }
 
-  .analytics-2025-top-btn {
-    width: 100%;
-    border-radius: 12px;
-    padding: 10px 12px;
-    font-size: 0.95rem;
+  .history-hub-label {
+    font-size: 1rem;
   }
+
+  .history-hub-divider {
+    margin: 16px 0 14px 0;
+  }
+
+  .history-hub-card .past-year-btn,
+  .analytics-history-btn {
+    width: 100%;
+    max-width: 260px;
+    padding: 13px 16px;
+    font-size: 1.15rem;
+  }
+
+  .tourny-2026-grid {
+    padding-bottom: 34px;
+  }
+}
+.tourny-2026-grid {
+  padding-bottom: 36px;
 }

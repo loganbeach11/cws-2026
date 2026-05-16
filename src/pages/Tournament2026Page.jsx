@@ -216,19 +216,6 @@ function Tournament2026Page({ isAdmin = false }) {
       <div style={{ flex: 1 }}>
         <Tournament2026Provider>
           <PickSavedToast />
-
-          {isAdmin && (
-            <div className="admin-analytics-access">
-              <button
-                type="button"
-                className="analytics-2025-top-btn"
-                onClick={() => navigate("/analytics2025")}
-              >
-                📊 Open 2025 Analytics Dashboard
-              </button>
-            </div>
-          )}
-
           {isAdmin && <TiebreakerAdminControls2026 />}
 
           <div className="summary-rules-row">
@@ -300,15 +287,33 @@ function Tournament2026Page({ isAdmin = false }) {
           </div>
 
           <div className="tourny-2026-grid">
-            <div className="tourny-2026-panel past-bracket">
-              <h3>My Past Brackets</h3>
-              <button
-                onClick={() => navigate("/tournament")}
-                className="game-button past-year-btn"
-              >
-                2025
+          <div className="tourny-2026-panel past-bracket history-hub-card">
+            <h3>Bracket History</h3>
+
+            <div className="history-hub-section">
+            <p className="history-hub-label">My Past Brackets</p>
+
+            <button
+              onClick={() => navigate("/tournament")}
+              className="game-button past-year-btn"
+            >
+             2025
               </button>
             </div>
+
+  <div className="history-hub-divider"></div>
+
+  <div className="history-hub-section">
+    <p className="history-hub-label">📊 Data Analytics</p>
+
+    <button
+      onClick={() => navigate("/analytics2025")}
+      className="game-button past-year-btn analytics-history-btn"
+    >
+      2025 Analytics
+    </button>
+  </div>
+</div>
 
             <div className="leaderboard-2026-wrap">
               <Leaderboard2026 currentUsername={usernameDisplay} />

@@ -418,7 +418,7 @@ def build_insights(game_breakdown, similarity_data):
             f"{'was' if len(most_predictable_games) == 1 else 'were'} "
             f"the most predictable "
             f"{'game' if len(most_predictable_games) == 1 else 'games'}, "
-            f"with {predictable_percent}% of users picking "
+            f"with {predictable_percent}% of submitted picks choosing "
             f"{format_winner_list(most_predictable_games)}."
         )
     else:
@@ -690,7 +690,7 @@ def main():
         for user in valid_users
     ]
 
-    average_score = round(mean(raw_scores), 2) if raw_scores else 0
+    average_score = round(mean(adjusted_scores), 2) if adjusted_scores else 0
     winning_score = max(adjusted_scores) if adjusted_scores else 0
 
     game_breakdown = calculate_game_breakdown(valid_users, user_picks, locked_games)

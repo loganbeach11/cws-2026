@@ -7,7 +7,7 @@ export const analytics2025Data = {
   "overview": {
     "totalPlayers": 11,
     "totalGames": 13,
-    "averageScore": 7.82,
+    "averageScore": 7.86,
     "winningScore": 10.5,
     "biggestUpset": "Game 4 and Game 12"
   },
@@ -1192,7 +1192,7 @@ export const analytics2025Data = {
     ]
   },
   "insights": {
-    "mostPredictableGame": "Game 1 and Game 11 were the most predictable games, with 100% of users picking Coastal Carolina.",
+    "mostPredictableGame": "Game 1 and Game 11 were the most predictable games, with 100% of submitted picks choosing Coastal Carolina.",
     "mostChaoticGame": "Game 4 and Game 12 were the most chaotic games, with only 18% of users picking LSU.",
     "mostUniqueBracket": "LDWHayDay had the most unique bracket, averaging only 47.3% similarity with the rest of the leaderboard.",
     "mostSimilarBrackets": "kelci.beach + Beachboy10$ had the most similar bracket pair, matching 92% of comparable picks."

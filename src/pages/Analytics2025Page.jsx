@@ -110,7 +110,9 @@ function Analytics2025Page() {
 
             <div className="analytics-chart-card">
               <h4>Accuracy by Game</h4>
-
+              <p className="analytics-small-note">
+                 Missing picks are not included in accuracy percentages.
+            </p>
               <div className="mini-data-list">
                 {gameBreakdown.map((game) => (
                   <div className="mini-data-row" key={game.game}>
@@ -154,6 +156,9 @@ function Analytics2025Page() {
             <p>
               Games ranked by how badly the group missed the actual winner.
             </p>
+            <p className="analytics-small-note centered-note">
+                Missing picks are not included in correct-pick percentages.
+             </p>
           </div>
 
           <div className="analytics-table-wrap">
@@ -281,7 +286,9 @@ function Analytics2025Page() {
 
             <div className="analytics-table-card">
               <h4>Game Pick Breakdown</h4>
-
+              <p className="analytics-small-note">
+                Missing picks are not included in correct-pick percentages.
+            </p>
               <div className="analytics-table-wrap">
                 <table className="analytics-table">
                   <thead>
