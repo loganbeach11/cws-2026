@@ -525,3 +525,199 @@
     margin: 6px 0 0 0;
     text-align: center;
   }
+  /* Mobile table cleanup */
+.analytics-section {
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  
+  .analytics-table-card {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  
+  .analytics-table-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
+  }
+  
+  /* Keep table text like "Game 15" on one line */
+  .analytics-table th,
+  .analytics-table td {
+    white-space: nowrap;
+  }
+  
+  /* Give wide tables room, but keep them scrollable inside the card */
+  .analytics-table {
+    min-width: 620px;
+  }
+  
+  /* Bigger table like Biggest Misses needs a little more width */
+  .analytics-section > .analytics-table-wrap .analytics-table {
+    min-width: 760px;
+  }
+  
+  @media (max-width: 500px) {
+    .analytics-table-card {
+      padding: 14px;
+    }
+  
+    .analytics-table-wrap {
+      border-radius: 8px;
+    }
+  
+    .analytics-table th,
+    .analytics-table td {
+      padding: 9px 10px;
+    }
+  }
+  @media (max-width: 500px) {
+    /* Reduce extra column spacing inside analytics tables on mobile */
+    .analytics-table {
+      width: max-content;
+      min-width: 0;
+      font-size: 0.82rem;
+    }
+  
+    .analytics-table th,
+    .analytics-table td {
+      padding: 8px 9px;
+      white-space: nowrap;
+    }
+  
+    /* Biggest Misses table */
+    .analytics-section > .analytics-table-wrap .analytics-table th,
+    .analytics-section > .analytics-table-wrap .analytics-table td {
+      padding: 8px 10px;
+    }
+  
+    .analytics-section > .analytics-table-wrap .analytics-table {
+      min-width: 620px;
+    }
+  
+    /* Bottom two tables */
+    .analytics-table-card .analytics-table {
+      min-width: 500px;
+    }
+  
+    .analytics-table-card .analytics-table th,
+    .analytics-table-card .analytics-table td {
+      padding: 8px 10px;
+    }
+  }
+  @media (max-width: 500px) {
+    /* Let the final leaderboard fit inside the card on mobile */
+    .leaderboard-table {
+      width: 100%;
+      min-width: 0 !important;
+      table-layout: auto;
+    }
+  
+    .leaderboard-table th,
+    .leaderboard-table td {
+      padding: 8px 6px !important;
+      white-space: nowrap;
+    }
+  
+    .leaderboard-table th:nth-child(1),
+    .leaderboard-table td:nth-child(1) {
+      width: 46px;
+    }
+  
+    .leaderboard-table th:nth-child(2),
+    .leaderboard-table td:nth-child(2) {
+      width: auto;
+    }
+  
+    .leaderboard-table th:nth-child(3),
+    .leaderboard-table td:nth-child(3) {
+      width: 56px;
+      text-align: center;
+    }
+  
+    .leaderboard-table th:nth-child(4),
+    .leaderboard-table td:nth-child(4) {
+      width: 76px;
+      text-align: center;
+    }
+  
+    .leaderboard-table td:nth-child(2) {
+      max-width: 145px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  
+    /* Keep the bigger scrollable tables tighter but still scrollable */
+    .analytics-table:not(.leaderboard-table) {
+      width: max-content;
+      min-width: 0;
+      font-size: 0.82rem;
+    }
+  
+    .analytics-table:not(.leaderboard-table) th,
+    .analytics-table:not(.leaderboard-table) td {
+      padding: 8px 8px;
+      white-space: nowrap;
+    }
+  }
+  .mobile-label {
+    display: none;
+  }
+  
+  @media (max-width: 500px) {
+    .desktop-label {
+      display: none;
+    }
+  
+    .mobile-label {
+      display: inline;
+    }
+  
+    /* Final leaderboard should fit on mobile, not scroll */
+    .leaderboard-table {
+      width: 100% !important;
+      min-width: 0 !important;
+      table-layout: fixed;
+      font-size: 0.78rem;
+    }
+  
+    .leaderboard-table th,
+    .leaderboard-table td {
+      padding: 8px 4px !important;
+      white-space: nowrap;
+    }
+  
+    .leaderboard-table th:nth-child(1),
+    .leaderboard-table td:nth-child(1) {
+      width: 42px;
+    }
+  
+    .leaderboard-table th:nth-child(2),
+    .leaderboard-table td:nth-child(2) {
+      width: auto;
+      max-width: 118px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  
+    .leaderboard-table th:nth-child(3),
+    .leaderboard-table td:nth-child(3) {
+      width: 50px;
+      text-align: center;
+    }
+  
+    .leaderboard-table th:nth-child(4),
+    .leaderboard-table td:nth-child(4) {
+      width: 54px;
+      text-align: center;
+    }
+  
+    .leaderboard-table th {
+      letter-spacing: 0.25px;
+    }
+  }

@@ -260,13 +260,16 @@ function Analytics2025Page() {
               <h4>Final Leaderboard</h4>
 
               <div className="analytics-table-wrap">
-                <table className="analytics-table">
+                <table className="analytics-table leaderboard-table">
                   <thead>
                     <tr>
                       <th>Rank</th>
                       <th>User</th>
                       <th>Score</th>
-                      <th>Accuracy</th>
+                      <th>
+                        <span className="desktop-label">Accuracy</span>
+                        <span className="mobile-label">Acc.</span>
+                        </th>
                     </tr>
                   </thead>
 
