@@ -721,3 +721,11 @@
       letter-spacing: 0.25px;
     }
   }
+  /* Make the bottom Tables section wider on desktop */
+@media (min-width: 901px) {
+    .analytics-section.tables-section {
+      width: min(1420px, calc(100vw - 64px));
+      margin-left: 50%;
+      transform: translateX(-50%);
+    }
+  }

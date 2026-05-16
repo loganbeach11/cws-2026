@@ -249,7 +249,7 @@ function Analytics2025Page() {
           </div>
         </section>
 
-        <section className="analytics-section">
+        <section className="analytics-section tables-section">
           <div className="analytics-section-header">
             <h3>📋 Tables</h3>
             <p>Detailed game-by-game and user-by-user breakdowns.</p>
