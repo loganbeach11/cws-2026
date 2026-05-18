@@ -30,18 +30,33 @@ function Brandon2025BracketPage() {
     <div style={{ backgroundColor: "navy", minHeight: "100vh" }}>
       <div className="header">
         <h1 className="header-title">🏟️ 2025 CWS Bracket ⚾</h1>
-        <div className="header-score">
-          {username} - 10.5 points
-        </div>
+        <div className="header-score">{username} - 10.5 points</div>
       </div>
-	<div style={{ flex: 1 }}>
+  
+      <div style={{ flex: 1 }}>
         {/* Load Brandon’s picks by forcing viewUserId */}
         <TournamentProvider viewUserId={BRANDON_UID}>
-          {/* Make bracket read-only for this view */}
-          <div style={{ pointerEvents: "none" }}>
-            <Bracket isAdmin={false} />
+          {/* Horizontally scrollable bracket wrapper for mobile */}
+          <div
+            style={{
+              width: "100%",
+              overflowX: "auto",
+              overflowY: "visible",
+              WebkitOverflowScrolling: "touch",
+              boxSizing: "border-box",
+              paddingBottom: "18px",
+            }}
+          >
+            <div
+              style={{
+                minWidth: "1750px",
+                pointerEvents: "none",
+              }}
+            >
+              <Bracket isAdmin={false} />
+            </div>
           </div>
-
+  
           {/* Read-only leaderboard that only reads from 2025 `users` */}
           <Leaderboard2025ReadOnly currentUsername={username} />
         </TournamentProvider>
