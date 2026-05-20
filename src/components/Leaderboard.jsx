@@ -10,79 +10,120 @@ import {
 } from "firebase/firestore";
 import "./Leaderboard.css";
 
+const CACHE_KEY = "leaderboard2025Cache";
+
 function Leaderboard({ currentUsername }) {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState(() => {
+    try {
+      const cached = sessionStorage.getItem(CACHE_KEY);
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [loading, setLoading] = useState(() => {
+    try {
+      const cached = sessionStorage.getItem(CACHE_KEY);
+      return !cached;
+    } catch {
+      return true;
+    }
+  });
 
   useEffect(() => {
     const userCollection = collection(db, "users");
 
-    const unsubscribe = onSnapshot(userCollection, async (snapshot) => {
-      // Recalculate scores for all users
-      const gamesSnap = await getDoc(doc(db, "tournament", "games"));
-      const games = gamesSnap.exists() ? gamesSnap.data() : {};
+    const unsubscribe = onSnapshot(
+      userCollection,
+      async (snapshot) => {
+        try {
+          // Recalculate scores for all users
+          const gamesSnap = await getDoc(doc(db, "tournament", "games"));
+          const games = gamesSnap.exists() ? gamesSnap.data() : {};
 
-      const picksSnapshot = await getDocs(collection(db, "userPicks"));
-      const picksData = {};
-      picksSnapshot.forEach((doc) => {
-        picksData[doc.id] = doc.data();
-      });
+          const picksSnapshot = await getDocs(collection(db, "userPicks"));
+          const picksData = {};
 
-      for (const userDoc of snapshot.docs) {
-        const uid = userDoc.id;
-        const userPicks = picksData[uid] || {};
-        let score = 0;
+          picksSnapshot.forEach((doc) => {
+            picksData[doc.id] = doc.data();
+          });
 
-        Object.entries(userPicks).forEach(([gameId, pick]) => {
-          const game = games[gameId];
-          if (game?.winner && game.winner === pick) {
-            score += 1;
+          for (const userDoc of snapshot.docs) {
+            const uid = userDoc.id;
+            const userPicks = picksData[uid] || {};
+            let score = 0;
+
+            Object.entries(userPicks).forEach(([gameId, pick]) => {
+              const game = games[gameId];
+
+              if (game?.winner && game.winner === pick) {
+                score += 1;
+              }
+            });
+
+            const userRef = doc(db, "users", uid);
+            const current = userDoc.data();
+
+            if (current.score !== score) {
+              await setDoc(
+                userRef,
+                {
+                  username: current.username || uid,
+                  score,
+                },
+                { merge: true }
+              );
+            }
           }
-        });
 
-        const userRef = doc(db, "users", uid);
-        const current = userDoc.data();
+          // After scores are updated, rebuild the leaderboard list
+          const userList = snapshot.docs
+            .map((doc) => {
+              const data = doc.data();
+              const username =
+                data.username || data.email?.split("@")[0] || doc.id;
+              let points = data.score || 0;
 
-        if (current.score !== score) {
-          await setDoc(
-            userRef,
-            {
-              username: current.username || uid,
-              score,
-            },
-            { merge: true }
-          );
+              // Add 0.5 to Brandon's displayed points only
+              if (username === "Brandon_Beach_FTW") {
+                points += 0.5;
+              }
+
+              return {
+                username,
+                points,
+                eligible2025: data.eligible2025,
+              };
+            })
+            .filter(
+              (user) =>
+                user.eligible2025 !== false &&
+                user.username !== "loganbeach11" &&
+                user.username !== "loganbeach11@fake.com" &&
+                user.username !== "lo"
+            );
+
+          userList.sort((a, b) => b.points - a.points);
+
+          setUsers(userList);
+          setLoading(false);
+
+          try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify(userList));
+          } catch {
+            // Ignore cache write errors
+          }
+        } catch (error) {
+          console.error("2025 leaderboard recalculation error:", error);
+          setLoading(false);
         }
+      },
+      (error) => {
+        console.error("2025 leaderboard snapshot error:", error);
+        setLoading(false);
       }
-
-      // After scores are updated, rebuild the leaderboard list
-      const userList = snapshot.docs
-        .map((doc) => {
-          const data = doc.data();
-          const username = data.username || data.email?.split("@")[0] || doc.id;
-          let points = data.score || 0;
-
-          // Add 0.5 to Brandon's displayed points only
-          if (username === "Brandon_Beach_FTW") {
-            points += 0.5;
-          }
-
-          return {
-            username,
-            points,
-            eligible2025: data.eligible2025,
-          };
-        })
-        .filter(
-          (user) =>
-            user.eligible2025 !== false &&
-            user.username !== "loganbeach11" &&
-            user.username !== "loganbeach11@fake.com" &&
-            user.username !== "lo"
-        );
-
-      userList.sort((a, b) => b.points - a.points);
-      setUsers(userList);
-    });
+    );
 
     return () => unsubscribe();
   }, []);
@@ -129,30 +170,42 @@ function Leaderboard({ currentUsername }) {
   };
 
   const rankedUsers = getRankedUsers();
+  const normalizeUsername = (value) => {
+    return (value || "").toString().trim().toLowerCase();
+  };
+  
+  const normalizedCurrentUsername = normalizeUsername(currentUsername);
 
   return (
     <div className="leaderboard">
       <h2>🏆 Leaderboard 🏆</h2>
-      <ol>
-        {rankedUsers.map((user) => (
-          <li key={user.username}>
-            <span>
-              {renderRank(user.rank, user.isTied)}{" "}
-              <span
-                className={
-                  currentUsername &&
-                  user.username.toLowerCase() === currentUsername.toLowerCase()
-                    ? "highlight-user"
-                    : ""
-                }
-              >
-                {user.username} - {user.points}{" "}
-                {user.points === 1 ? "point" : "points"}
+
+      {loading && rankedUsers.length === 0 ? (
+        <p style={{ textAlign: "center", fontWeight: 800 }}>
+          Loading leaderboard...
+        </p>
+      ) : (
+        <ol>
+          {rankedUsers.map((user) => (
+            <li key={user.username}>
+              <span>
+                {renderRank(user.rank, user.isTied)}{" "}
+                <span
+                  className={
+                    normalizedCurrentUsername &&
+                    normalizeUsername(user.username) === normalizedCurrentUsername
+                      ? "highlight-user"
+                      : ""
+                  }
+                >
+                  {user.username} - {user.points}{" "}
+                  {user.points === 1 ? "point" : "points"}
+                </span>
               </span>
-            </span>
-          </li>
-        ))}
-      </ol>
+            </li>
+          ))}
+        </ol>
+      )}
     </div>
   );
 }

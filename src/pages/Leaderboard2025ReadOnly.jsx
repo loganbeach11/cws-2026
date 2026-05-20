@@ -1,16 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { db, auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
-// Reads 2025 scores ONLY from the `users` collection
 import { collection, onSnapshot } from "firebase/firestore";
 
 // Reuse your existing leaderboard styles
 import "../components/Leaderboard.css";
 
+const CACHE_KEY = "leaderboard2025ReadOnlyCache";
+
 export default function Leaderboard2025ReadOnly({ currentUsername = "" }) {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState(() => {
+    try {
+      const cached = sessionStorage.getItem(CACHE_KEY);
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+
   const [authReady, setAuthReady] = useState(false);
   const [firebaseUser, setFirebaseUser] = useState(null);
+  const [loading, setLoading] = useState(() => {
+    try {
+      const cached = sessionStorage.getItem(CACHE_KEY);
+      return !cached;
+    } catch {
+      return true;
+    }
+  });
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -22,12 +39,12 @@ export default function Leaderboard2025ReadOnly({ currentUsername = "" }) {
   }, []);
 
   useEffect(() => {
+    // Important: do NOT clear users here.
+    // This keeps the cached leaderboard visible while auth/Firestore refreshes.
     if (!authReady || !firebaseUser) {
-      setUsers([]);
       return;
     }
 
-    // 2025 users collection
     const userCollection = collection(db, "users");
 
     const unsubscribe = onSnapshot(
@@ -49,8 +66,6 @@ export default function Leaderboard2025ReadOnly({ currentUsername = "" }) {
               eligible2025: data.eligible2025,
             };
           })
-          // Hide new 2026-only users from the 2025 leaderboard.
-          // Old 2025 users without this field still show.
           .filter(
             (u) =>
               u.eligible2025 !== false &&
@@ -61,17 +76,23 @@ export default function Leaderboard2025ReadOnly({ currentUsername = "" }) {
           .sort((a, b) => b.points - a.points);
 
         setUsers(list);
+        setLoading(false);
+
+        try {
+          sessionStorage.setItem(CACHE_KEY, JSON.stringify(list));
+        } catch {
+          // Ignore cache write errors
+        }
       },
       (error) => {
         console.error("2025 read-only leaderboard snapshot error:", error);
-        setUsers([]);
+        setLoading(false);
       }
     );
 
     return () => unsubscribe();
   }, [authReady, firebaseUser]);
 
-  // Tie-handling exactly like your original
   const getRankedUsers = () => {
     const ranked = [];
     let currentRank = 1;
@@ -110,29 +131,41 @@ export default function Leaderboard2025ReadOnly({ currentUsername = "" }) {
 
   const rankedUsers = getRankedUsers();
 
+  const normalizeUsername = (value) => {
+    return (value || "").toString().trim().toLowerCase();
+  };
+  
+  const normalizedCurrentUsername = normalizeUsername(currentUsername);
   return (
     <div className="leaderboard">
       <h2>🏆 Leaderboard 🏆</h2>
-      <ol>
-        {rankedUsers.map((u) => (
-          <li key={u.username}>
-            <span>
-              {renderRank(u.rank, u.isTied)}{" "}
-              <span
-                className={
-                  currentUsername &&
-                  u.username.toLowerCase() === currentUsername.toLowerCase()
-                    ? "highlight-user"
-                    : ""
-                }
-              >
-                {u.username} - {u.points}{" "}
-                {u.points === 1 ? "point" : "points"}
+
+      {loading && rankedUsers.length === 0 ? (
+        <p style={{ textAlign: "center", fontWeight: 800 }}>
+          Loading leaderboard...
+        </p>
+      ) : (
+        <ol>
+          {rankedUsers.map((u) => (
+            <li key={u.username}>
+              <span>
+                {renderRank(u.rank, u.isTied)}{" "}
+                <span
+                  className={
+                    normalizedCurrentUsername &&
+                    normalizeUsername(u.username) === normalizedCurrentUsername
+                      ? "highlight-user"
+                      : ""
+                  }
+                >
+                  {u.username} - {u.points}{" "}
+                  {u.points === 1 ? "point" : "points"}
+                </span>
               </span>
-            </span>
-          </li>
-        ))}
-      </ol>
+            </li>
+          ))}
+        </ol>
+      )}
     </div>
   );
 }

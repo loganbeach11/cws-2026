@@ -36,7 +36,7 @@ function Brandon2025BracketPage() {
       <div style={{ flex: 1 }}>
         {/* Load Brandon’s picks by forcing viewUserId */}
         <TournamentProvider viewUserId={BRANDON_UID}>
-          {/* Horizontally scrollable bracket wrapper for mobile */}
+          {/* Horizontally scrollable bracket wrapper only when needed */}
           <div
             style={{
               width: "100%",
@@ -48,8 +48,8 @@ function Brandon2025BracketPage() {
             }}
           >
             <div
+              className="brandon-2025-bracket-inner"
               style={{
-                minWidth: "1750px",
                 pointerEvents: "none",
               }}
             >
@@ -58,7 +58,7 @@ function Brandon2025BracketPage() {
           </div>
   
           {/* Read-only leaderboard that only reads from 2025 `users` */}
-          <Leaderboard2025ReadOnly currentUsername={username} />
+          <Leaderboard2025ReadOnly currentUsername="Brandon_Beach_FTW" />
         </TournamentProvider>
       </div>
     </div>

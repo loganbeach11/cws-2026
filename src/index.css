@@ -359,3 +359,13 @@ body.no-scroll {
   overflow: hidden !important;
   height: 100vh;
 }
+.brandon-2025-bracket-inner {
+  width: 100%;
+}
+
+/* Only force horizontal bracket width on mobile/tablet */
+@media (max-width: 900px) {
+  .brandon-2025-bracket-inner {
+    min-width: 1750px;
+  }
+}

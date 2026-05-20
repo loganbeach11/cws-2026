@@ -104,7 +104,7 @@
 }
 
 .highlight-user {
-  color: #111 !important;
+  color: red !important;
   font-weight: 900 !important;
   font-family: Arial, sans-serif !important;
 }
