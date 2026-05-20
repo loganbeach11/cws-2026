@@ -6,13 +6,20 @@ import { collection, onSnapshot } from "firebase/firestore";
 // Reuse your existing leaderboard styles
 import "../components/Leaderboard.css";
 
-const CACHE_KEY = "leaderboard2025ReadOnlyCache";
+const CACHE_KEY = "leaderboard2025Cache";
+
+const sortLeaderboardUsers = (list) => {
+  return [...list].sort((a, b) => {
+    if (b.points !== a.points) return b.points - a.points;
+    return a.username.localeCompare(b.username);
+  });
+};
 
 export default function Leaderboard2025ReadOnly({ currentUsername = "" }) {
   const [users, setUsers] = useState(() => {
     try {
-      const cached = sessionStorage.getItem(CACHE_KEY);
-      return cached ? JSON.parse(cached) : [];
+      const cached = localStorage.getItem(CACHE_KEY);
+      return cached ? sortLeaderboardUsers(JSON.parse(cached)) : [];
     } catch {
       return [];
     }
@@ -20,9 +27,10 @@ export default function Leaderboard2025ReadOnly({ currentUsername = "" }) {
 
   const [authReady, setAuthReady] = useState(false);
   const [firebaseUser, setFirebaseUser] = useState(null);
+
   const [loading, setLoading] = useState(() => {
     try {
-      const cached = sessionStorage.getItem(CACHE_KEY);
+      const cached = localStorage.getItem(CACHE_KEY);
       return !cached;
     } catch {
       return true;
@@ -39,7 +47,7 @@ export default function Leaderboard2025ReadOnly({ currentUsername = "" }) {
   }, []);
 
   useEffect(() => {
-    // Important: do NOT clear users here.
+    // Do NOT clear users here.
     // This keeps the cached leaderboard visible while auth/Firestore refreshes.
     if (!authReady || !firebaseUser) {
       return;
@@ -72,14 +80,25 @@ export default function Leaderboard2025ReadOnly({ currentUsername = "" }) {
               u.username !== "loganbeach11" &&
               u.username !== "loganbeach11@fake.com" &&
               u.username !== "lo"
-          )
-          .sort((a, b) => b.points - a.points);
+          );
 
-        setUsers(list);
+        const sortedList = sortLeaderboardUsers(list);
+
+        setUsers((currentUsers) => {
+          // If cached users are already visible, keep the visible leaderboard stable.
+          // Firestore still updates the cache below for next time.
+          if (currentUsers.length > 0) {
+            return currentUsers;
+          }
+
+          // If there was no cached leaderboard yet, show the fresh sorted list.
+          return sortedList;
+        });
+
         setLoading(false);
 
         try {
-          sessionStorage.setItem(CACHE_KEY, JSON.stringify(list));
+          localStorage.setItem(CACHE_KEY, JSON.stringify(sortedList));
         } catch {
           // Ignore cache write errors
         }
@@ -123,19 +142,21 @@ export default function Leaderboard2025ReadOnly({ currentUsername = "" }) {
 
   const renderRank = (rank, isTied) => {
     const prefix = isTied ? "(Tie) " : "";
+
     if (rank === 1) return `${prefix}🥇`;
     if (rank === 2) return `${prefix}🥈`;
     if (rank === 3) return `${prefix}🥉`;
+
     return `${prefix}${rank}.`;
   };
-
-  const rankedUsers = getRankedUsers();
 
   const normalizeUsername = (value) => {
     return (value || "").toString().trim().toLowerCase();
   };
-  
+
+  const rankedUsers = getRankedUsers();
   const normalizedCurrentUsername = normalizeUsername(currentUsername);
+
   return (
     <div className="leaderboard">
       <h2>🏆 Leaderboard 🏆</h2>

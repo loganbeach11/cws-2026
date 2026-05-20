@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { db } from "../firebase";
+import { db, auth } from "../firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import { onSnapshot, collection } from "firebase/firestore";
 import "./Leaderboard.css";
 
@@ -15,6 +16,7 @@ function Leaderboard2026({ currentUsername }) {
     }
   });
 
+  const [currentUid, setCurrentUid] = useState(() => auth.currentUser?.uid || "");
   const [loading, setLoading] = useState(() => {
     try {
       const cached = sessionStorage.getItem(CACHE_KEY);
@@ -69,6 +71,14 @@ function Leaderboard2026({ currentUsername }) {
       }
     );
 
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setCurrentUid(firebaseUser?.uid || "");
+    });
+  
     return () => unsubscribe();
   }, []);
 
@@ -138,9 +148,14 @@ function Leaderboard2026({ currentUsername }) {
       ) : (
         <ol className="leaderboard-list">
           {rankedUsers.map((user) => {
+            const normalizeUsername = (value) => {
+              return (value || "").toString().trim().toLowerCase();
+            };
+            
             const isCurrentUser =
-              currentUsername &&
-              user.username.toLowerCase() === currentUsername.toLowerCase();
+              (currentUid && user.uid === currentUid) ||
+              (currentUsername &&
+                normalizeUsername(user.username) === normalizeUsername(currentUsername));
 
             return (
               <li

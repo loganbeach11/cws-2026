@@ -12,11 +12,18 @@ import "./Leaderboard.css";
 
 const CACHE_KEY = "leaderboard2025Cache";
 
+const sortLeaderboardUsers = (list) => {
+  return [...list].sort((a, b) => {
+    if (b.points !== a.points) return b.points - a.points;
+    return a.username.localeCompare(b.username);
+  });
+};
+
 function Leaderboard({ currentUsername }) {
   const [users, setUsers] = useState(() => {
     try {
-      const cached = sessionStorage.getItem(CACHE_KEY);
-      return cached ? JSON.parse(cached) : [];
+      const cached = localStorage.getItem(CACHE_KEY);
+      return cached ? sortLeaderboardUsers(JSON.parse(cached)) : [];
     } catch {
       return [];
     }
@@ -24,7 +31,7 @@ function Leaderboard({ currentUsername }) {
 
   const [loading, setLoading] = useState(() => {
     try {
-      const cached = sessionStorage.getItem(CACHE_KEY);
+      const cached = localStorage.getItem(CACHE_KEY);
       return !cached;
     } catch {
       return true;
@@ -104,13 +111,13 @@ function Leaderboard({ currentUsername }) {
                 user.username !== "lo"
             );
 
-          userList.sort((a, b) => b.points - a.points);
+          const sortedUserList = sortLeaderboardUsers(userList);
 
-          setUsers(userList);
+          setUsers(sortedUserList);
           setLoading(false);
 
           try {
-            sessionStorage.setItem(CACHE_KEY, JSON.stringify(userList));
+            localStorage.setItem(CACHE_KEY, JSON.stringify(sortedUserList));
           } catch {
             // Ignore cache write errors
           }
@@ -163,17 +170,19 @@ function Leaderboard({ currentUsername }) {
 
   const renderRank = (rank, isTied) => {
     const prefix = isTied ? "(Tie) " : "";
+
     if (rank === 1) return `${prefix}🥇`;
     if (rank === 2) return `${prefix}🥈`;
     if (rank === 3) return `${prefix}🥉`;
+
     return `${prefix}${rank}.`;
   };
 
-  const rankedUsers = getRankedUsers();
   const normalizeUsername = (value) => {
     return (value || "").toString().trim().toLowerCase();
   };
-  
+
+  const rankedUsers = getRankedUsers();
   const normalizedCurrentUsername = normalizeUsername(currentUsername);
 
   return (
@@ -193,7 +202,8 @@ function Leaderboard({ currentUsername }) {
                 <span
                   className={
                     normalizedCurrentUsername &&
-                    normalizeUsername(user.username) === normalizedCurrentUsername
+                    normalizeUsername(user.username) ===
+                      normalizedCurrentUsername
                       ? "highlight-user"
                       : ""
                   }
