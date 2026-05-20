@@ -3,11 +3,36 @@ import { useTournament } from "../context/TournamentContext";
 import "./Game.css";
 
 function Game({ gameId, isAdmin }) {
-  const { games, updateGame, user, saveUserPick, userPicks } = useTournament();
+  const {
+    games,
+    gamesLoaded,
+    updateGame,
+    user,
+    saveUserPick,
+    userPicks,
+  } = useTournament();
+  
   const game = games?.[gameId];
+  const gamesAreStillLoading = !gamesLoaded;
+
+  if (gamesAreStillLoading) {
+    return (
+      <div className="game-box">
+       <div className="team disabled">Loading...</div>
+        <span className="vs">vs</span>
+        <div className="team disabled">Loading...</div>
+      </div>
+    );
+  }
 
   if (!game || Object.keys(game).length === 0) {
-    return <div className="game-box">Invalid game</div>;
+    return (
+      <div className="game-box">
+        <div className="team disabled">Loading...</div>
+        <span className="vs">vs</span>
+        <div className="team disabled">Loading...</div>
+      </div>
+    );
   }
 
   const normalizePick = (value) => {

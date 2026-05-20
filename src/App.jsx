@@ -77,17 +77,25 @@ function App() {
   }, [location.pathname]);
 
   // Subscribe to 2025 tournament complete flag
-  useEffect(() => {
-    const configRef = doc(db, "config", "tournament");
+ useEffect(() => {
+  if (!user?.uid) return;
 
-    const unsubscribe = onSnapshot(configRef, (docSnap) => {
+  const configRef = doc(db, "config", "tournament");
+
+  const unsubscribe = onSnapshot(
+    configRef,
+    (docSnap) => {
       if (docSnap.exists()) {
         setTournamentComplete(docSnap.data().complete);
       }
-    });
+    },
+    (error) => {
+      console.error("2025 tournament config snapshot error:", error);
+    }
+  );
 
-    return () => unsubscribe();
-  }, []);
+  return () => unsubscribe();
+}, [user?.uid]);
 
   const toggleComplete = async () => {
     try {
@@ -104,13 +112,19 @@ function App() {
 
     const userRef = doc(db, "users", user.uid);
 
-    const unsubscribe = onSnapshot(userRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        setUserScore(data.score || 0);
-        setUsernameDisplay(data.username || user.email || "");
+    const unsubscribe = onSnapshot(
+      userRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setUserScore(data.score || 0);
+          setUsernameDisplay(data.username || user.email || "");
+        }
+      },
+      (error) => {
+        console.error("2025 current user snapshot error:", error);
       }
-    });
+    );
 
     return () => unsubscribe();
   }, [user]);

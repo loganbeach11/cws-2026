@@ -6,11 +6,22 @@ function Game2026({ gameId, isAdmin }) {
   const { games, updateGame, user, saveUserPick, userPicks } =
     useTournament2026();
 
-  const game = games?.[gameId];
-
-  if (!game || Object.keys(game).length === 0) {
-    return <div className="game-box">Invalid game</div>;
-  }
+    const game = games?.[gameId];
+    const gamesAreStillLoading = !games || Object.keys(games).length === 0;
+    
+    if (gamesAreStillLoading) {
+      return (
+        <div className="game-box">
+          <div className="team disabled">Loading...</div>
+          <span className="vs">vs</span>
+          <div className="team disabled">Loading...</div>
+        </div>
+      );
+    }
+    
+    if (!game || Object.keys(game).length === 0) {
+      return <div className="game-box">Invalid game</div>;
+    }
 
   const normalizePick = (value) => {
     return (value || "").toString().trim().toLowerCase();

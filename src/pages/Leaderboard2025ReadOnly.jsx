@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { db } from "../firebase";
+import { db, auth } from "../firebase";
+import { onAuthStateChanged } from "firebase/auth";
 // Reads 2025 scores ONLY from the `users` collection
 import { collection, onSnapshot } from "firebase/firestore";
 
@@ -8,44 +9,67 @@ import "../components/Leaderboard.css";
 
 export default function Leaderboard2025ReadOnly({ currentUsername = "" }) {
   const [users, setUsers] = useState([]);
+  const [authReady, setAuthReady] = useState(false);
+  const [firebaseUser, setFirebaseUser] = useState(null);
 
   useEffect(() => {
-    // 2025 users collection
-    const userCollection = collection(db, "users");
-
-    const unsubscribe = onSnapshot(userCollection, (snapshot) => {
-      const list = snapshot.docs
-        .map((d) => {
-          const data = d.data() || {};
-          const username = data.username || d.id;
-          let points = Number(data.score ?? 0);
-
-          if (username === "Brandon_Beach_FTW") {
-            points += 0.5;
-          }
-
-          return {
-            username,
-            points,
-            eligible2025: data.eligible2025,
-          };
-        })
-        // Hide new 2026-only users from the 2025 leaderboard.
-        // Old 2025 users without this field still show.
-        .filter(
-          (u) =>
-            u.eligible2025 !== false &&
-            u.username !== "loganbeach11" &&
-            u.username !== "loganbeach11@fake.com" &&
-            u.username !== "lo"
-        )
-        .sort((a, b) => b.points - a.points);
-
-      setUsers(list);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setFirebaseUser(user || null);
+      setAuthReady(true);
     });
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!authReady || !firebaseUser) {
+      setUsers([]);
+      return;
+    }
+
+    // 2025 users collection
+    const userCollection = collection(db, "users");
+
+    const unsubscribe = onSnapshot(
+      userCollection,
+      (snapshot) => {
+        const list = snapshot.docs
+          .map((d) => {
+            const data = d.data() || {};
+            const username = data.username || d.id;
+            let points = Number(data.score ?? 0);
+
+            if (username === "Brandon_Beach_FTW") {
+              points += 0.5;
+            }
+
+            return {
+              username,
+              points,
+              eligible2025: data.eligible2025,
+            };
+          })
+          // Hide new 2026-only users from the 2025 leaderboard.
+          // Old 2025 users without this field still show.
+          .filter(
+            (u) =>
+              u.eligible2025 !== false &&
+              u.username !== "loganbeach11" &&
+              u.username !== "loganbeach11@fake.com" &&
+              u.username !== "lo"
+          )
+          .sort((a, b) => b.points - a.points);
+
+        setUsers(list);
+      },
+      (error) => {
+        console.error("2025 read-only leaderboard snapshot error:", error);
+        setUsers([]);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [authReady, firebaseUser]);
 
   // Tie-handling exactly like your original
   const getRankedUsers = () => {

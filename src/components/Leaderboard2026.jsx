@@ -1,42 +1,122 @@
 import React, { useEffect, useState } from "react";
-import { db } from "../firebase";
-import { onSnapshot, collection } from "firebase/firestore";
+import { db, auth } from "../firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import {
+  doc,
+  getDoc,
+  getDocs,
+  onSnapshot,
+  setDoc,
+  collection,
+} from "firebase/firestore";
 import "./Leaderboard.css";
 
-function Leaderboard2026({ currentUsername }) {
+function Leaderboard({ currentUsername }) {
   const [users, setUsers] = useState([]);
+  const [authReady, setAuthReady] = useState(false);
+  const [firebaseUser, setFirebaseUser] = useState(null);
 
   useEffect(() => {
-    const userCollection = collection(db, "users2026");
-
-    const unsubscribe = onSnapshot(userCollection, (snapshot) => {
-      const userList = snapshot.docs
-        .map((doc) => {
-          const data = doc.data();
-          const username = data.username || data.email?.split("@")[0] || doc.id;
-          const points = Number(data.score ?? 0);
-
-          return {
-            uid: doc.id,
-            username,
-            points,
-          };
-        })
-        .filter(
-          (user) =>
-            user.username !== "loganbeach11" &&
-            user.username !== "loganbeach11@fake.com" &&
-            user.username !== "lo" &&
-            user.username !== "log" &&
-            user.uid !== "bf5dgOYciTR4pfgAZ3nTFvQUPFs1"
-        );
-
-      userList.sort((a, b) => b.points - a.points);
-      setUsers(userList);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setFirebaseUser(user || null);
+      setAuthReady(true);
     });
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!authReady || !firebaseUser) {
+      setUsers([]);
+      return;
+    }
+
+    const userCollection = collection(db, "users");
+
+    const unsubscribe = onSnapshot(
+      userCollection,
+      async (snapshot) => {
+        try {
+          // Recalculate scores for all users
+          const gamesSnap = await getDoc(doc(db, "tournament", "games"));
+          const games = gamesSnap.exists() ? gamesSnap.data() : {};
+
+          const picksSnapshot = await getDocs(collection(db, "userPicks"));
+          const picksData = {};
+
+          picksSnapshot.forEach((doc) => {
+            picksData[doc.id] = doc.data();
+          });
+
+          for (const userDoc of snapshot.docs) {
+            const uid = userDoc.id;
+            const userPicks = picksData[uid] || {};
+            let score = 0;
+
+            Object.entries(userPicks).forEach(([gameId, pick]) => {
+              const game = games[gameId];
+
+              if (game?.winner && game.winner === pick) {
+                score += 1;
+              }
+            });
+
+            const userRef = doc(db, "users", uid);
+            const current = userDoc.data();
+
+            if (current.score !== score) {
+              await setDoc(
+                userRef,
+                {
+                  username: current.username || uid,
+                  score,
+                },
+                { merge: true }
+              );
+            }
+          }
+
+          // After scores are updated, rebuild the leaderboard list
+          const userList = snapshot.docs
+            .map((doc) => {
+              const data = doc.data();
+              const username =
+                data.username || data.email?.split("@")[0] || doc.id;
+              let points = data.score || 0;
+
+              // Add 0.5 to Brandon's displayed points only
+              if (username === "Brandon_Beach_FTW") {
+                points += 0.5;
+              }
+
+              return {
+                username,
+                points,
+                eligible2025: data.eligible2025,
+              };
+            })
+            .filter(
+              (user) =>
+                user.eligible2025 !== false &&
+                user.username !== "loganbeach11" &&
+                user.username !== "loganbeach11@fake.com" &&
+                user.username !== "lo"
+            );
+
+          userList.sort((a, b) => b.points - a.points);
+          setUsers(userList);
+        } catch (error) {
+          console.error("2025 leaderboard recalculation error:", error);
+        }
+      },
+      (error) => {
+        console.error("2025 leaderboard snapshot error:", error);
+        setUsers([]);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [authReady, firebaseUser]);
 
   const getRankedUsers = () => {
     const ranked = [];
@@ -48,8 +128,8 @@ function Leaderboard2026({ currentUsername }) {
       const prev = users[i - 1];
       const next = users[i + 1];
 
-      const sameAsPrev = i > 0 && current.points === prev?.points;
-      const sameAsNext = i < users.length - 1 && current.points === next?.points;
+      const sameAsPrev = i > 0 && current.points === prev.points;
+      const sameAsNext = i < users.length - 1 && current.points === next.points;
       const isTied = sameAsPrev || sameAsNext;
 
       const rank = sameAsPrev ? ranked[ranked.length - 1].rank : currentRank;
@@ -71,21 +151,12 @@ function Leaderboard2026({ currentUsername }) {
     return ranked;
   };
 
-  const getOrdinal = (rank) => {
-    const suffixes = ["th", "st", "nd", "rd"];
-    const value = rank % 100;
-    return `${rank}${suffixes[(value - 20) % 10] || suffixes[value] || suffixes[0]}`;
-  };
-
-  const renderRankLabel = (rank, isTied) => {
-    return isTied ? `T-${getOrdinal(rank)}` : getOrdinal(rank);
-  };
-
-  const renderMedal = (rank) => {
-    if (rank === 1) return "🥇";
-    if (rank === 2) return "🥈";
-    if (rank === 3) return "🥉";
-    return "";
+  const renderRank = (rank, isTied) => {
+    const prefix = isTied ? "(Tie) " : "";
+    if (rank === 1) return `${prefix}🥇`;
+    if (rank === 2) return `${prefix}🥈`;
+    if (rank === 3) return `${prefix}🥉`;
+    return `${prefix}${rank}.`;
   };
 
   const rankedUsers = getRankedUsers();
@@ -93,49 +164,28 @@ function Leaderboard2026({ currentUsername }) {
   return (
     <div className="leaderboard">
       <h2>🏆 Leaderboard 🏆</h2>
-
-      <ol className="leaderboard-list">
-        {rankedUsers.map((user) => {
-          const isCurrentUser =
-            currentUsername &&
-            user.username.toLowerCase() === currentUsername.toLowerCase();
-
-          return (
-            <li
-              key={user.uid || user.username}
-              className={`leaderboard-row rank-${user.rank} ${
-                isCurrentUser ? "current-user-row" : ""
-              }`}
-            >
-              <div className="leaderboard-left">
-                <span className="leaderboard-rank">
-                  {renderRankLabel(user.rank, user.isTied)}
-                </span>
-
-                <span className="leaderboard-medal">
-                  {renderMedal(user.rank)}
-                </span>
-
-                <span
-                  className={`leaderboard-name ${
-                    isCurrentUser ? "highlight-user" : ""
-                  }`}
-                >
-                  {user.username}
-                </span>
-
-                {isCurrentUser && <span className="you-badge">YOU</span>}
-              </div>
-
-              <div className="leaderboard-points">
-                {user.points} {user.points === 1 ? "pt" : "pts"}
-              </div>
-            </li>
-          );
-        })}
+      <ol>
+        {rankedUsers.map((user) => (
+          <li key={user.username}>
+            <span>
+              {renderRank(user.rank, user.isTied)}{" "}
+              <span
+                className={
+                  currentUsername &&
+                  user.username.toLowerCase() === currentUsername.toLowerCase()
+                    ? "highlight-user"
+                    : ""
+                }
+              >
+                {user.username} - {user.points}{" "}
+                {user.points === 1 ? "point" : "points"}
+              </span>
+            </span>
+          </li>
+        ))}
       </ol>
     </div>
   );
 }
 
-export default Leaderboard2026;
+export default Leaderboard;
