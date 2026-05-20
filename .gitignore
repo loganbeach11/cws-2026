@@ -11,3 +11,4 @@ git push
 node_modules/
 
 scripts/raw_2025_data/
+scripts/serviceAccountKey.json
