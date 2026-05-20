@@ -17,11 +17,13 @@ import Brandon2025BracketPage from "./pages/Brandon2025BracketPage";
 import Analytics2025Page from "./pages/Analytics2025Page";
 
 import { getDoc, updateDoc, doc, onSnapshot } from "firebase/firestore";
-import { db } from "./firebase";
+import { db, auth } from "./firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [user, setUser] = useState(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const [userScore, setUserScore] = useState(0);
   const [usernameDisplay, setUsernameDisplay] = useState("");
   const [tournamentComplete, setTournamentComplete] = useState(false);
@@ -59,6 +61,21 @@ function App() {
     // Admin gets editing controls through isAdmin={true}.
     navigate("/tournament2026");
   };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser || null);
+      setIsAdmin(isAdminUser(firebaseUser));
+      setAuthChecked(true);
+  
+      if (!firebaseUser) {
+        setUserScore(0);
+        setUsernameDisplay("");
+      }
+    });
+  
+    return () => unsubscribe();
+  }, []);
 
   // Lock scroll on login page
   useEffect(() => {
@@ -127,8 +144,26 @@ function App() {
     );
 
     return () => unsubscribe();
-  }, [user]);
+  }, [user?.uid, user?.email]);
 
+  if (!authChecked) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          backgroundColor: "navy",
+          color: "white",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontWeight: 900,
+          fontSize: "1.2rem",
+        }}
+      >
+        Loading...
+      </div>
+    );
+  }
   return (
     <div
       style={{
@@ -246,10 +281,10 @@ function App() {
           element={user ? <Analytics2025Page /> : <Navigate to="/" />}
           />
   
-          <Route
-            path="/tournament2025/brandon"
-            element={<Brandon2025BracketPage />}
-          />
+        <Route
+          path="/tournament2025/brandon"
+          element={user ? <Brandon2025BracketPage /> : <Navigate to="/" />}
+        />
         </Routes>
       </div>
     </div>
