@@ -73,10 +73,6 @@ function SuperRegionals2026({ isAdmin }) {
     saveSuperRegionalPick,
   } = tournamentContext || {};
 
-  /*
-    Use Firebase/context data once available.
-    Use defaultSuperRegionals as fallback so the visual section never disappears.
-  */
   const displayedSuperRegionals =
     superRegionals && Object.keys(superRegionals).length > 0
       ? superRegionals
@@ -84,6 +80,15 @@ function SuperRegionals2026({ isAdmin }) {
 
   const normalizePick = (value) => {
     return (value || "").toString().trim().toLowerCase();
+  };
+
+  const isPlaceholderTeam = (value) => {
+    const cleanValue = (value || "").toString().trim();
+
+    return (
+      cleanValue.toUpperCase() === "TBD" ||
+      cleanValue.toLowerCase().endsWith("winner")
+    );
   };
 
   const handleTeamUpdate = async (regionId, teamKey, value) => {
@@ -112,6 +117,9 @@ function SuperRegionals2026({ isAdmin }) {
 
     const region = displayedSuperRegionals[regionId];
     const teamName = region?.[teamKey] || "TBD";
+
+    if (isPlaceholderTeam(teamName)) return;
+
     const newWinner = region?.winner === teamName ? "" : teamName;
 
     await updateSuperRegional(regionId, {
@@ -131,12 +139,12 @@ function SuperRegionals2026({ isAdmin }) {
 
   const handleUserPick = async (regionId, actualName) => {
     const region = displayedSuperRegionals[regionId];
-    const isTBD = actualName.trim().toUpperCase() === "TBD";
+    const isPlaceholder = isPlaceholderTeam(actualName);
 
     if (
       isAdmin ||
       region?.locked ||
-      isTBD ||
+      isPlaceholder ||
       !user ||
       !saveSuperRegionalPick
     ) {
@@ -155,7 +163,7 @@ function SuperRegionals2026({ isAdmin }) {
   const renderTeam = (regionId, teamKey) => {
     const region = displayedSuperRegionals[regionId];
     const actualName = region?.[teamKey] || "TBD";
-    const isTBD = actualName.trim().toUpperCase() === "TBD";
+    const isPlaceholder = isPlaceholderTeam(actualName);
 
     const userCurrentPick = superRegionalPicks?.[regionId];
     const isPicked =
@@ -180,9 +188,6 @@ function SuperRegionals2026({ isAdmin }) {
     const isIncorrect = isPicked && hasWinner && !isActualWinner;
     const isNeutral = isPicked && !hasWinner;
 
-    // Show the actual winner in gold if:
-    // - the user picked wrong, OR
-    // - the user made no pick
     const isWinnerNotPicked = hasWinner && isActualWinner && !isPicked;
 
     const shouldDisableHover = region?.locked && !isAdmin;
@@ -206,7 +211,7 @@ function SuperRegionals2026({ isAdmin }) {
           ${isIncorrect ? "incorrect" : ""}
           ${isWinnerNotPicked ? "winner-not-picked" : ""}
           ${isNeutral ? "picked" : ""}
-          ${isTBD && !isAdmin ? "disabled" : ""}
+          ${isPlaceholder && !isAdmin ? "disabled placeholder-team" : ""}
           ${shouldDisableHover ? "locked" : ""}
         `}
         onClick={() => handleUserPick(regionId, actualName)}
@@ -232,6 +237,8 @@ function SuperRegionals2026({ isAdmin }) {
                   ? "winner-highlight"
                   : ""
               }
+              ${isPlaceholder ? "placeholder-team-label" : ""}
+            ${actualName.trim().toUpperCase() === "TBD" ? "tbd-placeholder-label" : ""}
               ${isLongResultName ? "long-team-name" : ""}
               ${isVeryLongResultName ? "very-long-team-name" : ""}
             `}

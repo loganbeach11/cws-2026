@@ -208,3 +208,24 @@
 .super-regional-team.disabled:hover * {
   cursor: default !important;
 }
+.super-regional-team.placeholder-team {
+    background: #f1f1f1 !important;
+    border: 1.5px dashed #c8c8c8 !important;
+    color: #aaa !important;
+    cursor: not-allowed !important;
+    pointer-events: none;
+    box-shadow: none !important;
+  }
+  
+  .super-regional-team.placeholder-team .team-label,
+  .placeholder-team-label {
+    color: #aaa !important;
+    font-weight: 51 !important;
+    font-size: 1em !important;
+    line-height: 1.1 !important;
+  }
+  
+  .super-regional-team.placeholder-team .team-label.tbd-placeholder-label {
+    font-size: 1.05em !important;
+    font-weight: 525 !important;
+  }
