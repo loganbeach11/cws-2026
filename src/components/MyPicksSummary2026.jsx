@@ -35,10 +35,20 @@ function MyPicksSummary2026() {
   const normalizePick = (value) => {
     return (value || "").toString().trim().toLowerCase();
   };
-
+  
+  const isPlaceholderTeam = (value) => {
+    const cleanValue = (value || "").toString().trim();
+    const normalized = cleanValue.toLowerCase();
+  
+    return (
+      normalized === "" ||
+      normalized === "tbd" ||
+      normalized.endsWith("winner")
+    );
+  };
+  
   const isFilledTeam = (value) => {
-    const normalized = normalizePick(value);
-    return normalized !== "" && normalized !== "tbd";
+    return !isPlaceholderTeam(value);
   };
 
   const regionalIsAvailable = (regional) => {
