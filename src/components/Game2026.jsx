@@ -26,6 +26,16 @@ function Game2026({ gameId, isAdmin }) {
   const normalizePick = (value) => {
     return (value || "").toString().trim().toLowerCase();
   };
+  const isPlaceholderTeam = (value) => {
+    const cleanValue = (value || "").toString().trim();
+    const normalized = cleanValue.toLowerCase();
+  
+    return (
+      normalized === "" ||
+      normalized === "tbd" ||
+      normalized.endsWith("winner")
+    );
+  };
 
   const updateTeam = (teamKey, value) => {
     if (!isAdmin) return;
@@ -54,17 +64,17 @@ function Game2026({ gameId, isAdmin }) {
   };
 
   const hasAnyRealTeam = () => {
-    return (
-      (normalizePick(game.team1) !== "" &&
-        normalizePick(game.team1) !== "tbd") ||
-      (normalizePick(game.team2) !== "" &&
-        normalizePick(game.team2) !== "tbd")
-    );
+    return !isPlaceholderTeam(game.team1) || !isPlaceholderTeam(game.team2);
   };
 
   const renderTeam = (teamKey) => {
     const actualName = game[teamKey] || "TBD";
+    const isPlaceholder = isPlaceholderTeam(actualName);
     const isTBD = actualName.trim().toUpperCase() === "TBD";
+    const isSrWinnerPlaceholder = isPlaceholder && !isTBD;
+    const isMediumPlaceholder = isSrWinnerPlaceholder && actualName.length >= 18;
+    const isLongPlaceholder = isSrWinnerPlaceholder && actualName.length >= 22;
+    const isExtraLongPlaceholder = isSrWinnerPlaceholder && actualName.length >= 26;
 
     const userCurrentPick = userPicks?.[gameId];
     const isPicked =
@@ -113,7 +123,7 @@ function Game2026({ gameId, isAdmin }) {
     const isVeryLongResultName = resultIcon && actualName.length >= 20;
 
     const handleClick = () => {
-      if (isAdmin || game.locked || isTBD || !user) return;
+      if (isAdmin || game.locked || isPlaceholder || !user) return;
 
       const newPick = isPicked ? null : actualName;
       saveUserPick(user.uid, gameId, newPick);
@@ -126,7 +136,7 @@ function Game2026({ gameId, isAdmin }) {
           ${isIncorrect ? "incorrect" : ""}
           ${isWinnerNotPicked ? "winner-not-picked" : ""}
           ${isNeutral ? "picked" : ""}
-          ${isTBD && !isAdmin ? "disabled" : ""}
+          ${isPlaceholder && !isAdmin ? "disabled placeholder-team" : ""}
           ${shouldDisableHover ? "locked" : ""}
         `}
         onClick={handleClick}
@@ -151,6 +161,13 @@ function Game2026({ gameId, isAdmin }) {
                   ? "winner-highlight"
                   : ""
               }
+              ${isPlaceholder ? "placeholder-team-label" : ""}
+              ${isTBD ? "tbd-placeholder-label" : ""}
+              ${isSrWinnerPlaceholder ? "sr-winner-placeholder-label" : ""}
+              ${isMediumPlaceholder ? "sr-placeholder-medium" : ""}
+              ${isLongPlaceholder ? "sr-placeholder-long" : ""}
+              ${isExtraLongPlaceholder ? "sr-placeholder-extra-long" : ""}
+              ${isPlaceholder && !isTBD ? "sr-winner-placeholder-label" : ""}
               ${isLoserGame11or12 ? "small-text" : ""}
               ${isLongResultName ? "long-team-name" : ""}
               ${isVeryLongResultName ? "very-long-team-name" : ""}
