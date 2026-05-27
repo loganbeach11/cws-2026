@@ -37,17 +37,17 @@ function ScoringRulesCard2026() {
       <div className="scoring-rules-list">
         <div className="scoring-rule-row">
           <span>Regionals</span>
-          <strong>1 pt each</strong>
+          <strong>10 pts each</strong>
         </div>
 
         <div className="scoring-rule-row">
           <span>Super Regionals</span>
-          <strong>1 pt each</strong>
+          <strong>15 pts each</strong>
         </div>
 
         <div className="scoring-rule-row">
           <span>CWS Games</span>
-          <strong>1 pt each</strong>
+          <strong>20 pts each</strong>
         </div>
 
         <div className="scoring-rule-row tiebreaker-rule">
@@ -56,7 +56,7 @@ function ScoringRulesCard2026() {
         </div>
 
         <div className="scoring-time-note">
-          ⏰ All lock times are in CST.
+          ⏰ All lock times are in CDT.
         </div>
       </div>
     </div>
@@ -275,6 +275,11 @@ function Tournament2026Page({ isAdmin = false }) {
             </div>
             <div className="omaha-divider-line"></div>
           </div>
+
+          <div className="cws-if-necessary-note">
+          <strong>Note:</strong> Games 13 and 14 are only 
+          played if necessary — when the loser of Game 11 or Game 12 has not lost yet in the CWS.
+        </div>
 
           <Bracket2026 isAdmin={isAdmin} />
 

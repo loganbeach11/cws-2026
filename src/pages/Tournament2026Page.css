@@ -873,3 +873,34 @@
 .tourny-2026-grid {
   padding-bottom: 36px;
 }
+.cws-if-necessary-note {
+  max-width: 1180px;
+  width: fit-content;
+  margin: 0 auto 8px;
+  padding: 10px 16px;
+  background: #fff7d6;
+  border: 2px solid #d4a017;
+  border-radius: 14px;
+  color: #111;
+  font-size: 0.95rem;
+  font-weight: 800;
+  text-align: center;
+  line-height: 1.25;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  white-space: nowrap;
+}
+
+.cws-if-necessary-note strong {
+  color: navy;
+  font-weight: 950;
+}
+
+@media (max-width: 900px) {
+  .cws-if-necessary-note {
+    width: auto;
+    margin: 0 12px 8px;
+    padding: 9px 11px;
+    font-size: 0.82rem;
+    white-space: normal;
+  }
+}

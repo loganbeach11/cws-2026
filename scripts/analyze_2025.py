@@ -23,10 +23,30 @@ EXCLUDED_UIDS = {
 TIEBREAKER_BONUSES = {
     "brandon_beach_ftw": 0.5,
 }
+USERNAME_OVERRIDES = {
+    "ldwhayday": "Nammy",
+    "ldwhdayday": "Nammy",
+}
 
 def normalize(value):
     return str(value or "").strip().lower()
 
+def apply_username_overrides(users):
+    updated_users = []
+
+    for user in users:
+        username = user.get("username", "")
+        normalized_username = normalize(username)
+
+        if normalized_username in USERNAME_OVERRIDES:
+            user = {
+                **user,
+                "username": USERNAME_OVERRIDES[normalized_username],
+            }
+
+        updated_users.append(user)
+
+    return updated_users
 
 def load_json(filename):
     path = RAW_DATA_DIR / filename
@@ -673,7 +693,7 @@ def write_js_data_file(data):
 
 
 def main():
-    users = load_json("users.json")
+    users = apply_username_overrides(load_json("users.json"))
     user_picks = load_json("userPicks.json")
     games = load_json("games.json")
 

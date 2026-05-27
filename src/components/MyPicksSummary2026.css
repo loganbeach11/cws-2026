@@ -141,3 +141,20 @@
       margin-top: 4px;
     }
   }
+  .summary-rank-gold {
+    background: #fff7d6 !important;
+    border-color: #e0b94f !important;
+    box-shadow: 0 4px 12px rgba(224, 185, 79, 0.22);
+  }
+  
+  .summary-rank-silver {
+    background: #f3f4f6 !important;
+    border-color: #bfc5cc !important;
+    box-shadow: 0 4px 12px rgba(150, 160, 170, 0.18);
+  }
+  
+  .summary-rank-bronze {
+    background: #fff1df !important;
+    border-color: #c98945 !important;
+    box-shadow: 0 4px 12px rgba(201, 137, 69, 0.2);
+  }

@@ -33,7 +33,9 @@ function Game2026({ gameId, isAdmin }) {
     return (
       normalized === "" ||
       normalized === "tbd" ||
-      normalized.endsWith("winner")
+      /^g\d+\s+(winner|loser)$/i.test(cleanValue) ||
+      normalized.endsWith("winner") ||
+      normalized.endsWith("loser")
     );
   };
 
@@ -71,10 +73,10 @@ function Game2026({ gameId, isAdmin }) {
     const actualName = game[teamKey] || "TBD";
     const isPlaceholder = isPlaceholderTeam(actualName);
     const isTBD = actualName.trim().toUpperCase() === "TBD";
-    const isSrWinnerPlaceholder = isPlaceholder && !isTBD;
-    const isMediumPlaceholder = isSrWinnerPlaceholder && actualName.length >= 18;
-    const isLongPlaceholder = isSrWinnerPlaceholder && actualName.length >= 22;
-    const isExtraLongPlaceholder = isSrWinnerPlaceholder && actualName.length >= 26;
+    const isGamePathPlaceholder = isPlaceholder && !isTBD;
+    const isMediumPlaceholder = isGamePathPlaceholder && actualName.length >= 18;
+    const isLongPlaceholder = isGamePathPlaceholder && actualName.length >= 22;
+    const isExtraLongPlaceholder = isGamePathPlaceholder && actualName.length >= 26;
 
     const userCurrentPick = userPicks?.[gameId];
     const isPicked =
@@ -163,11 +165,10 @@ function Game2026({ gameId, isAdmin }) {
               }
               ${isPlaceholder ? "placeholder-team-label" : ""}
               ${isTBD ? "tbd-placeholder-label" : ""}
-              ${isSrWinnerPlaceholder ? "sr-winner-placeholder-label" : ""}
-              ${isMediumPlaceholder ? "sr-placeholder-medium" : ""}
-              ${isLongPlaceholder ? "sr-placeholder-long" : ""}
-              ${isExtraLongPlaceholder ? "sr-placeholder-extra-long" : ""}
-              ${isPlaceholder && !isTBD ? "sr-winner-placeholder-label" : ""}
+              ${isGamePathPlaceholder ? "game-path-placeholder-label" : ""}
+              ${isMediumPlaceholder ? "game-path-placeholder-medium" : ""}
+              ${isLongPlaceholder ? "game-path-placeholder-long" : ""}
+              ${isExtraLongPlaceholder ? "game-path-placeholder-extra-long" : ""}
               ${isLoserGame11or12 ? "small-text" : ""}
               ${isLongResultName ? "long-team-name" : ""}
               ${isVeryLongResultName ? "very-long-team-name" : ""}
@@ -200,6 +201,12 @@ function Game2026({ gameId, isAdmin }) {
       <span className="vs">vs</span>
       {renderTeam("team2")}
 
+      {["13", "14"].includes(String(gameId)) && (
+      <div className="if-necessary-note">
+       If necessary
+      </div>
+        )}
+        
       {isAdmin && (
         <div className="admin-controls">
           <button onClick={() => setWinner("team1")}>

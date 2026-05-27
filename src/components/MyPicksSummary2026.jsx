@@ -43,7 +43,9 @@ function MyPicksSummary2026() {
     return (
       normalized === "" ||
       normalized === "tbd" ||
-      normalized.endsWith("winner")
+      /^g\d+\s+(winner|loser)$/i.test(cleanValue) ||
+      normalized.endsWith("winner") ||
+      normalized.endsWith("loser")
     );
   };
   
@@ -110,6 +112,18 @@ function MyPicksSummary2026() {
     ).length;
 
     return tiedCount > 1 ? `T-${getOrdinal(rank)}` : getOrdinal(rank);
+  };
+
+  const getRankPillClass = (rankLabel) => {
+    if (!rankLabel || rankLabel === "—") return "";
+  
+    const normalizedRank = rankLabel.toLowerCase();
+  
+    if (normalizedRank.includes("1st")) return "summary-rank-gold";
+    if (normalizedRank.includes("2nd")) return "summary-rank-silver";
+    if (normalizedRank.includes("3rd")) return "summary-rank-bronze";
+  
+    return "";
   };
 
   const getSectionRecord = (items, picks) => {
@@ -223,9 +237,9 @@ function MyPicksSummary2026() {
           </span>
         </div>
 
-        <div className="summary-pill">
-          <span className="summary-pill-label">Rank</span>
-          <span className="summary-pill-value">{summary.rank}</span>
+        <div className={`summary-pill ${getRankPillClass(summary.rank)}`}>
+            <span className="summary-pill-label">Rank</span>
+            <span className="summary-pill-value">{summary.rank}</span>
         </div>
 
         <div className="summary-pill">

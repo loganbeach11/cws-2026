@@ -1,0 +1,219 @@
+.regional-intel-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 30, 0.72);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+  }
+  
+  .regional-intel-modal {
+    width: min(1050px, 96vw);
+    max-height: 88vh;
+    overflow-y: auto;
+    background: #ffffff;
+    border-radius: 18px;
+    border: 3px solid #c9a227;
+    box-shadow: 0 20px 55px rgba(0, 0, 0, 0.35);
+    padding: 22px;
+  }
+  
+  .regional-intel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 6px;
+  }
+  
+  .regional-intel-eyebrow {
+    margin: 0 0 4px;
+    font-size: 0.78rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #b08a00;
+  }
+  
+  .regional-intel-header h2 {
+    margin: 0;
+    color: navy;
+    font-size: clamp(1.45rem, 3vw, 2.25rem);
+    font-weight: 950;
+  }
+  
+  .regional-intel-close {
+    border: none;
+    background: #f1f1f1;
+    color: #111;
+    font-size: 1.1rem;
+    font-weight: 900;
+    border-radius: 999px;
+    width: 38px;
+    height: 38px;
+    cursor: pointer;
+  }
+  
+  .regional-intel-close:hover {
+    background: #e1e1e1;
+  }
+  
+  .regional-intel-subtitle {
+    color: #333;
+    font-weight: 700;
+    margin-bottom: 18px;
+  }
+  
+  .regional-intel-table-wrap {
+    overflow-x: auto;
+    border-radius: 14px;
+    border: 1px solid #e3e3e3;
+  }
+  
+  .regional-intel-table {
+    width: 100%;
+    min-width: 760px;
+    border-collapse: collapse;
+    background: #fff;
+  }
+  
+  .regional-intel-table th,
+  .regional-intel-table td {
+    padding: 13px 12px;
+    text-align: center;
+    border-bottom: 1px solid #ececec;
+    font-weight: 800;
+    color: #111;
+  }
+  
+  .regional-intel-table th {
+    background: #f7f7f7;
+    color: navy;
+    font-size: 0.98rem;
+  }
+  
+  .regional-intel-table tbody tr:nth-child(even) {
+    background: #fafafa;
+  }
+  
+  .stat-label-col {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: #f3f4f6 !important;
+    color: #333 !important;
+    text-align: left !important;
+    min-width: 135px;
+    font-weight: 950 !important;
+  }
+  
+  .team-intel-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .team-intel-seed {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: navy;
+    color: white;
+    border-radius: 999px;
+    width: 26px;
+    height: 26px;
+    font-size: 0.85rem;
+    font-weight: 950;
+  }
+  
+  .regional-intel-note {
+    margin: 14px 2px 0;
+    color: #555;
+    font-size: 0.86rem;
+    font-weight: 650;
+    line-height: 1.35;
+  }
+  
+  @media (max-width: 600px) {
+    .regional-intel-button {
+        font-weight: 700 !important;
+      }
+    .regional-intel-overlay {
+      padding: 10px;
+      align-items: center;
+    }
+  
+    .regional-intel-modal {
+      width: 98vw;
+      max-height: 88vh;
+      padding: 14px;
+      border-radius: 14px;
+    }
+  
+    .regional-intel-header {
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+  
+    .regional-intel-eyebrow {
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+    }
+  
+    .regional-intel-header h2 {
+      font-size: 1.45rem;
+      line-height: 1.05;
+    }
+  
+    .regional-intel-close {
+      width: 34px;
+      height: 34px;
+      font-size: 1rem;
+      flex: 0 0 auto;
+    }
+  
+    .regional-intel-subtitle {
+      font-size: 0.88rem;
+      margin-bottom: 12px;
+    }
+  
+    .regional-intel-table {
+      min-width: 620px;
+    }
+  
+    .regional-intel-table th,
+    .regional-intel-table td {
+      padding: 10px 7px;
+      font-size: 0.82rem;
+    }
+  
+    .stat-label-col {
+      min-width: 82px;
+      width: 82px;
+      max-width: 82px;
+      padding-left: 8px !important;
+      padding-right: 6px !important;
+      font-size: 0.76rem !important;
+      white-space: normal;
+      line-height: 1.15;
+    }
+  
+    .team-intel-header {
+      font-size: 0.82rem;
+      gap: 3px;
+    }
+  
+    .team-intel-seed {
+      width: 23px;
+      height: 23px;
+      font-size: 0.78rem;
+    }
+  
+    .regional-intel-note {
+      font-size: 0.72rem;
+      line-height: 1.25;
+    }
+  }

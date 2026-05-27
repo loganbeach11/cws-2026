@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTournament2026 } from "../context/Tournament2026Context";
+import RegionalIntelModal2026 from "../components/RegionalIntelModal2026";
 import "./Game.css";
 import "./Regionals2026.css";
+import regionalsIntelData from "../data/regionalsIntel2026.json";
 
 const defaultRegionals = {};
 
@@ -18,6 +20,7 @@ for (let i = 1; i <= 16; i++) {
 }
 
 function Regionals2026({ isAdmin }) {
+    const [selectedRegionalIntel, setSelectedRegionalIntel] = useState(null);
   const {
     regionals,
     updateRegional,
@@ -47,6 +50,13 @@ function Regionals2026({ isAdmin }) {
     });
   };
 
+  const getRegionalIntel = (regionalName) => {
+    return regionalsIntelData.regionals.find(
+      (item) =>
+        item.regionalName.toLowerCase() ===
+        (regionalName || "").toLowerCase()
+    );
+  };
   const handleTeamUpdate = async (regionalId, teamKey, value) => {
     if (!isAdmin || !updateRegional) return;
 
@@ -216,8 +226,8 @@ function Regionals2026({ isAdmin }) {
         <h2>Road to Omaha: Regional Picks</h2>
         <p>
           Pick the 16 teams you think will advance to Super Regionals. Each
-          correct pick will be worth 1 point. All Regional picks will lock on May
-          29th at x:xx pm.
+          correct pick will be worth 10 points. All Regional picks will lock on Friday, May
+          29 at 11:00 AM.
         </p>
       </div>
 
@@ -252,6 +262,18 @@ function Regionals2026({ isAdmin }) {
               {renderTeam(regionalId, "team4")}
             </div>
 
+            {getRegionalIntel(regional?.name) && (
+  <button
+    type="button"
+    className="regional-intel-button"
+    onClick={(event) => {
+      event.stopPropagation();
+      setSelectedRegionalIntel(getRegionalIntel(regional?.name));
+    }}
+  >
+    📊 Regional Intel
+  </button>
+)}
             {isAdmin && (
               <div className="regional-admin-controls">
                 <div className="regional-winner-buttons">
@@ -281,9 +303,15 @@ function Regionals2026({ isAdmin }) {
             )}
           </div>
         ))}
-      </div>
-    </section>
-  );
+            </div>
+
+            <RegionalIntelModal2026
+  isOpen={Boolean(selectedRegionalIntel)}
+  regionalIntel={selectedRegionalIntel}
+  onClose={() => setSelectedRegionalIntel(null)}
+/>
+</section>
+);
 }
 
 export default Regionals2026;

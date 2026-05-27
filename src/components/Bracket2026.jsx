@@ -127,7 +127,7 @@ function Bracket2026({ isAdmin }) {
         <div className="bracket-column">
           <div style={{ height: "250px" }} />
             <div className="game-wrapper">
-		<div className="game-label">If necessary - Jun 18 TBD</div>
+		        <div className="game-label">Game 13 - Jun 18 TBD</div>
             <Game2026 gameId={13} isAdmin={isAdmin} />
             <div className="horizontal-line" />
             <div className="vertical-line line-between-col4">
@@ -138,7 +138,7 @@ function Bracket2026({ isAdmin }) {
 
           <div style={{ height: "315px" }} />
           <div className="game-wrapper">
-            <div className="game-label">If necessary - Jun 18 TBD</div>
+            <div className="game-label">Game 14 - Jun 18 TBD</div>
             <Game2026 gameId={14} isAdmin={isAdmin} />
             <div className="horizontal-line" />
             <div className="bracket-label"></div>

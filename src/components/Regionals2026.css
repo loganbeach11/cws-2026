@@ -50,7 +50,7 @@
   .regional-card-header h3 {
     margin: 0;
     color: navy;
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 800;
   }
   
@@ -186,3 +186,22 @@
 .regional-team.disabled:hover * {
   cursor: default !important;
 }
+
+.regional-intel-button {
+    margin: 6px auto 0;
+    width: calc(100% - 36px);
+    border: 2px solid #c9a227;
+    background: #fff7d6;
+    color: navy;
+    border-radius: 999px;
+    padding: 9px 12px;
+    font-size: 0.9rem;
+    font-weight: 950;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  }
+  
+  .regional-intel-button:hover {
+    transform: translateY(-1px);
+    background: #ffefae;
+  }

@@ -1,12 +1,38 @@
 import React, { useEffect, useState } from "react";
 import { db, auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { onSnapshot, collection } from "firebase/firestore";
+import { onSnapshot, collection, doc } from "firebase/firestore";
 import "./Leaderboard.css";
 
 const CACHE_KEY = "leaderboard2026Cache";
 
 function Leaderboard2026({ currentUsername }) {
+  const [leaderboardMovement, setLeaderboardMovement] = useState({});
+  const renderMovementBadge = (uid) => {
+    const movement = leaderboardMovement?.[uid];
+  
+    if (!movement || movement.direction === "same" || movement.amount === 0) {
+      return null;
+    }
+  
+    if (movement.direction === "up") {
+      return (
+        <span className="leaderboard-movement movement-up">
+          ▲ {movement.amount}
+        </span>
+      );
+    }
+  
+    if (movement.direction === "down") {
+      return (
+        <span className="leaderboard-movement movement-down">
+          ▼ {movement.amount}
+        </span>
+      );
+    }
+  
+    return null;
+  };
   const [users, setUsers] = useState(() => {
     try {
       const cached = sessionStorage.getItem(CACHE_KEY);
@@ -26,6 +52,21 @@ function Leaderboard2026({ currentUsername }) {
     }
   });
 
+  useEffect(() => {
+    const movementRef = doc(db, "leaderboardMovement2026", "latest");
+  
+    const unsubscribe = onSnapshot(movementRef, (snapshot) => {
+      if (!snapshot.exists()) {
+        setLeaderboardMovement({});
+        return;
+      }
+  
+      const data = snapshot.data() || {};
+      setLeaderboardMovement(data.movementByUid || {});
+    });
+  
+    return () => unsubscribe();
+  }, []);
   useEffect(() => {
     const userCollection = collection(db, "users2026");
 
@@ -174,15 +215,17 @@ function Leaderboard2026({ currentUsername }) {
                   </span>
 
                   <span className="leaderboard-name">
-                    {user.username}
-                  </span>
+                  {user.username}
+                </span>
 
-                  {isCurrentUser && <span className="you-badge">YOU</span>}
-                </div>
+                {isCurrentUser && <span className="you-badge">YOU</span>}
 
-                <div className="leaderboard-points">
-                  {user.points} {user.points === 1 ? "pt" : "pts"}
-                </div>
+                {renderMovementBadge(user.uid)}
+              </div>
+
+            <div className="leaderboard-points">
+              {user.points} {user.points === 1 ? "pt" : "pts"}
+            </div>
               </li>
             );
           })}

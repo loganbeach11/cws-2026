@@ -21,6 +21,9 @@ import {
 } from "firebase/firestore";
 
 const Tournament2026Context = createContext();
+const REGIONAL_PICK_POINTS = 10;
+const SUPER_REGIONAL_PICK_POINTS = 15;
+const CWS_PICK_POINTS = 20;
 
 export const Tournament2026Provider = ({ children }) => {
   const [games, setGames] = useState({});
@@ -123,49 +126,49 @@ export const Tournament2026Provider = ({ children }) => {
 
   const calculateCwsScoreFromData = (picks, gamesData) => {
     let score = 0;
-
+  
     Object.entries(picks || {}).forEach(([gameId, pick]) => {
       const game = gamesData?.[gameId];
-
+  
       if (game?.winner && normalizePick(game.winner) === normalizePick(pick)) {
-        score += 1;
+        score += CWS_PICK_POINTS;
       }
     });
-
+  
     return score;
   };
 
   const calculateRegionalScoreFromData = (picks, regionalsData) => {
     let score = 0;
-
+  
     Object.entries(picks || {}).forEach(([regionalId, pick]) => {
       const regional = regionalsData?.[regionalId];
-
+  
       if (
         regional?.winner &&
         normalizePick(regional.winner) === normalizePick(pick)
       ) {
-        score += 1;
+        score += REGIONAL_PICK_POINTS;
       }
     });
-
+  
     return score;
   };
 
   const calculateSuperRegionalScoreFromData = (picks, superRegionalsData) => {
     let score = 0;
-
+  
     Object.entries(picks || {}).forEach(([regionId, pick]) => {
       const region = superRegionalsData?.[regionId];
-
+  
       if (
         region?.winner &&
         normalizePick(region.winner) === normalizePick(pick)
       ) {
-        score += 1;
+        score += SUPER_REGIONAL_PICK_POINTS;
       }
     });
-
+  
     return score;
   };
 
@@ -311,7 +314,111 @@ export const Tournament2026Provider = ({ children }) => {
       { merge: true }
     );
   };
-
+  const EXCLUDED_LEADERBOARD_UIDS = new Set([
+    "bf5dgOYciTR4pfgAZ3nTFvQUPFs1",
+  ]);
+  
+  const EXCLUDED_LEADERBOARD_USERNAMES = new Set([
+    "log",
+    "loganbeach11",
+    "loganbeach11@fake.com",
+    "lo",
+  ]);
+  
+  const shouldIncludeLeaderboardUser = (uid, userData) => {
+    const username = normalizePick(userData?.username || "");
+  
+    if (EXCLUDED_LEADERBOARD_UIDS.has(uid)) return false;
+    if (EXCLUDED_LEADERBOARD_USERNAMES.has(username)) return false;
+  
+    return true;
+  };
+  
+  const buildRankSnapshotFromUsers = (usersSnapshot) => {
+    const users = [];
+  
+    usersSnapshot.forEach((userDoc) => {
+      const uid = userDoc.id;
+      const userData = userDoc.data() || {};
+  
+      if (!shouldIncludeLeaderboardUser(uid, userData)) return;
+  
+      users.push({
+        uid,
+        username: userData.username || uid,
+        score: Number(userData.score ?? 0),
+      });
+    });
+  
+    users.sort((a, b) => b.score - a.score);
+  
+    const rankingsByUid = {};
+    let currentRank = 1;
+  
+    users.forEach((userItem, index) => {
+      if (index > 0 && userItem.score !== users[index - 1].score) {
+        currentRank = index + 1;
+      }
+  
+      rankingsByUid[userItem.uid] = {
+        uid: userItem.uid,
+        username: userItem.username,
+        score: userItem.score,
+        rank: currentRank,
+      };
+    });
+  
+    return rankingsByUid;
+  };
+  
+  const getCurrentLeaderboardRankingSnapshot = async () => {
+    const usersSnapshot = await getDocs(collection(db, "users2026"));
+    return buildRankSnapshotFromUsers(usersSnapshot);
+  };
+  
+  const saveLeaderboardMovementSnapshot = async ({
+    beforeRankings,
+    afterRankings,
+    sourceType,
+    sourceId,
+  }) => {
+    const movementByUid = {};
+  
+    Object.entries(afterRankings || {}).forEach(([uid, currentData]) => {
+      const previousData = beforeRankings?.[uid];
+  
+      if (!previousData) {
+        movementByUid[uid] = {
+          direction: "new",
+          amount: 0,
+          previousRank: null,
+          currentRank: currentData.rank,
+        };
+        return;
+      }
+  
+      const rankChange = previousData.rank - currentData.rank;
+  
+      movementByUid[uid] = {
+        direction:
+          rankChange > 0 ? "up" : rankChange < 0 ? "down" : "same",
+        amount: Math.abs(rankChange),
+        previousRank: previousData.rank,
+        currentRank: currentData.rank,
+      };
+    });
+  
+    await setDoc(
+      doc(db, "leaderboardMovement2026", "latest"),
+      {
+        movementByUid,
+        sourceType,
+        sourceId,
+        updatedAt: new Date().toISOString(),
+      },
+      { merge: true }
+    );
+  };
   /*
     ONE source of truth for 2026 scoring.
 
@@ -955,7 +1062,16 @@ const builtInTiebreakerWinner = getBuiltInTiebreakerWinner({
   // Admin/general update to a specific CWS game field(s) in 2026 doc
   const updateGame = async (id, updatedData) => {
     const gamesDocRef = doc(db, "tournament2026", "games");
-
+  
+    const winnerIsBeingChanged = Object.prototype.hasOwnProperty.call(
+      updatedData,
+      "winner"
+    );
+  
+    const beforeRankings = winnerIsBeingChanged
+      ? await getCurrentLeaderboardRankingSnapshot()
+      : null;
+  
     await setDoc(
       gamesDocRef,
       {
@@ -966,14 +1082,33 @@ const builtInTiebreakerWinner = getBuiltInTiebreakerWinner({
       },
       { merge: true }
     );
-
+  
     await recalculateAndSaveAllUserScores();
+  
+    if (winnerIsBeingChanged) {
+      const afterRankings = await getCurrentLeaderboardRankingSnapshot();
+  
+      await saveLeaderboardMovementSnapshot({
+        beforeRankings,
+        afterRankings,
+        sourceType: "cws",
+        sourceId: id,
+      });
+    }
   };
 
-  // Admin/general update to a specific Regional field(s) in 2026 doc
   const updateRegional = async (id, updatedData) => {
     const regionalsDocRef = doc(db, "regionals2026", "regions");
-
+  
+    const winnerIsBeingChanged = Object.prototype.hasOwnProperty.call(
+      updatedData,
+      "winner"
+    );
+  
+    const beforeRankings = winnerIsBeingChanged
+      ? await getCurrentLeaderboardRankingSnapshot()
+      : null;
+  
     await setDoc(
       regionalsDocRef,
       {
@@ -984,14 +1119,34 @@ const builtInTiebreakerWinner = getBuiltInTiebreakerWinner({
       },
       { merge: true }
     );
-
+  
     await recalculateAndSaveAllUserScores();
+  
+    if (winnerIsBeingChanged) {
+      const afterRankings = await getCurrentLeaderboardRankingSnapshot();
+  
+      await saveLeaderboardMovementSnapshot({
+        beforeRankings,
+        afterRankings,
+        sourceType: "regional",
+        sourceId: id,
+      });
+    }
   };
 
   // Admin/general update to a specific Super Regional field(s) in 2026 doc
   const updateSuperRegional = async (id, updatedData) => {
     const superRegionalsDocRef = doc(db, "superRegionals2026", "regions");
-
+  
+    const winnerIsBeingChanged = Object.prototype.hasOwnProperty.call(
+      updatedData,
+      "winner"
+    );
+  
+    const beforeRankings = winnerIsBeingChanged
+      ? await getCurrentLeaderboardRankingSnapshot()
+      : null;
+  
     await setDoc(
       superRegionalsDocRef,
       {
@@ -1002,8 +1157,19 @@ const builtInTiebreakerWinner = getBuiltInTiebreakerWinner({
       },
       { merge: true }
     );
-
+  
     await recalculateAndSaveAllUserScores();
+  
+    if (winnerIsBeingChanged) {
+      const afterRankings = await getCurrentLeaderboardRankingSnapshot();
+  
+      await saveLeaderboardMovementSnapshot({
+        beforeRankings,
+        afterRankings,
+        sourceType: "superRegional",
+        sourceId: id,
+      });
+    }
   };
 
   const currentUserDataForTiebreaker = user

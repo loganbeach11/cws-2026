@@ -94,7 +94,7 @@ export const analytics2025Data = {
     },
     {
       "rank": "11",
-      "username": "LDWHayDay",
+      "username": "Nammy",
       "score": 4,
       "rawScore": 4,
       "bonus": 0,
@@ -780,7 +780,7 @@ export const analytics2025Data = {
     },
     {
       "rank": "11",
-      "username": "LDWHayDay",
+      "username": "Nammy",
       "score": 4,
       "accuracy": "31%",
       "style": "Balanced",
@@ -799,7 +799,7 @@ export const analytics2025Data = {
     ],
     "mostUniqueUsers": [
       {
-        "username": "LDWHayDay",
+        "username": "Nammy",
         "averageSimilarity": 47.3
       }
     ],
@@ -1003,7 +1003,7 @@ export const analytics2025Data = {
       {
         "users": [
           "Bbeach",
-          "LDWHayDay"
+          "Nammy"
         ],
         "similarity": 67
       },
@@ -1073,7 +1073,7 @@ export const analytics2025Data = {
       {
         "users": [
           "kelci.beach",
-          "LDWHayDay"
+          "Nammy"
         ],
         "similarity": 58
       },
@@ -1121,14 +1121,14 @@ export const analytics2025Data = {
       },
       {
         "users": [
-          "LDWHayDay",
+          "Nammy",
           "Brandon_Beach_FTW"
         ],
         "similarity": 54
       },
       {
         "users": [
-          "LDWHayDay",
+          "Nammy",
           "Beachboy10$"
         ],
         "similarity": 54
@@ -1150,41 +1150,41 @@ export const analytics2025Data = {
       {
         "users": [
           "RookieRachel",
-          "LDWHayDay"
+          "Nammy"
         ],
         "similarity": 46
       },
       {
         "users": [
           "HannahTriplett",
-          "LDWHayDay"
+          "Nammy"
         ],
         "similarity": 42
       },
       {
         "users": [
           "loganbeach13",
-          "LDWHayDay"
+          "Nammy"
         ],
         "similarity": 38
       },
       {
         "users": [
           "PoppyRules!",
-          "LDWHayDay"
+          "Nammy"
         ],
         "similarity": 38
       },
       {
         "users": [
           "lodell23",
-          "LDWHayDay"
+          "Nammy"
         ],
         "similarity": 38
       },
       {
         "users": [
-          "LDWHayDay",
+          "Nammy",
           "lauren\ud83d\udd1b\ud83d\udd1d"
         ],
         "similarity": 38
@@ -1194,7 +1194,7 @@ export const analytics2025Data = {
   "insights": {
     "mostPredictableGame": "Game 1 and Game 11 were the most predictable games, with 100% of submitted picks choosing Coastal Carolina.",
     "mostChaoticGame": "Game 4 and Game 12 were the most chaotic games, with only 18% of users picking LSU.",
-    "mostUniqueBracket": "LDWHayDay had the most unique bracket, averaging only 47.3% similarity with the rest of the leaderboard.",
+    "mostUniqueBracket": "Nammy had the most unique bracket, averaging only 47.3% similarity with the rest of the leaderboard.",
     "mostSimilarBrackets": "kelci.beach + Beachboy10$ had the most similar bracket pair, matching 92% of comparable picks."
   }
 };
