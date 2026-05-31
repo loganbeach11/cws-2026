@@ -2,6 +2,9 @@ import React from "react";
 import { useTournament2026 } from "../context/Tournament2026Context";
 import "./Game.css";
 import "./SuperRegionals2026.css";
+import { useState } from "react";
+import SuperRegionalIntelModal2026 from "../components/SuperRegionalIntelModal2026";
+import superRegionalsIntelData from "../data/superRegionalsIntel2026.json";
 
 const defaultSuperRegionals = {
   "1": {
@@ -64,6 +67,8 @@ const defaultSuperRegionals = {
 
 function SuperRegionals2026({ isAdmin }) {
   const tournamentContext = useTournament2026();
+  const [selectedSuperRegionalIntel, setSelectedSuperRegionalIntel] =
+    useState(null);
 
   const {
     superRegionals,
@@ -88,6 +93,38 @@ function SuperRegionals2026({ isAdmin }) {
     return (
       cleanValue.toUpperCase() === "TBD" ||
       cleanValue.toLowerCase().endsWith("winner")
+    );
+  };
+  const normalizeName = (value) => {
+    return (value || "")
+      .toString()
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, " ");
+  };
+  
+  const getSuperRegionalIntel = (superRegional, superRegionalId) => {
+    const name = normalizeName(superRegional?.name);
+  
+    const byName = superRegionalsIntelData.superRegionals.find(
+      (item) => normalizeName(item.superRegionalName) === name
+    );
+  
+    if (byName) return byName;
+  
+    const matchupKeysById = {
+      "1": "los-angeles-morgantown",
+      "2": "gainesville-hattiesburg",
+      "3": "chapel-hill-college-station",
+      "4": "auburn-lincoln",
+      "5": "atlanta-lawrence",
+      "6": "tuscaloosa-tallahassee",
+      "7": "austin-eugene",
+      "8": "athens-starkville",
+    };
+  
+    return superRegionalsIntelData.superRegionals.find(
+      (item) => item.matchupKey === matchupKeysById[String(superRegionalId)]
     );
   };
 
@@ -294,6 +331,19 @@ function SuperRegionals2026({ isAdmin }) {
               {renderTeam(regionId, "team2")}
             </div>
 
+            {getSuperRegionalIntel(region, regionId) && (
+              <button
+                type="button"
+                className="super-regional-intel-button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                      setSelectedSuperRegionalIntel(getSuperRegionalIntel(region, regionId));
+                  }}
+              >
+            📊 Matchup Intel
+            </button>
+              )}
+
             {isAdmin && (
               <div className="super-regional-admin-controls">
                 <div className="super-regional-winner-buttons">
@@ -318,6 +368,11 @@ function SuperRegionals2026({ isAdmin }) {
           </div>
         ))}
       </div>
+      <SuperRegionalIntelModal2026
+        isOpen={Boolean(selectedSuperRegionalIntel)}
+        superRegionalIntel={selectedSuperRegionalIntel}
+        onClose={() => setSelectedSuperRegionalIntel(null)}
+      />
     </section>
   );
 }

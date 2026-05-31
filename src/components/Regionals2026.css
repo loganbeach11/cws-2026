@@ -205,3 +205,9 @@
     transform: translateY(-1px);
     background: #ffefae;
   }
+  .team-record-inline {
+    font-size: 0.78em;
+    font-weight: 800;
+    opacity: 0.78;
+    white-space: nowrap;
+  }

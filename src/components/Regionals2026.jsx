@@ -118,6 +118,7 @@ function Regionals2026({ isAdmin }) {
   const renderTeam = (regionalId, teamKey) => {
     const regional = displayedRegionals[regionalId];
     const actualName = regional?.[teamKey] || "TBD";
+    const teamRecord = regional?.[`${teamKey}Record`] || "";
     const isTBD = actualName.trim().toUpperCase() === "TBD";
 
     const userCurrentPick = regionalPicks?.[regionalId];
@@ -214,6 +215,9 @@ function Regionals2026({ isAdmin }) {
           >
             {resultIcon && <span className="result-icon">{resultIcon}</span>}
             {actualName}
+            {teamRecord && (
+              <span className="team-record-inline"> ({teamRecord})</span>
+            )}
           </span>
         )}
       </div>

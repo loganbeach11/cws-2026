@@ -217,3 +217,76 @@
       line-height: 1.25;
     }
   }
+/* Super Regional Intel modal — tighter 2-team version */
+.super-regional-intel-modal {
+  width: min(650px, 94vw);
+}
+
+.super-intel-header {
+  gap: 0;
+}
+
+.super-intel-header span {
+  font-weight: 950;
+  color: navy;
+}
+
+.super-regional-intel-table {
+  width: 100%;
+  min-width: 0;
+  table-layout: fixed;
+}
+
+.super-regional-intel-table .stat-label-col {
+  width: 125px;
+  min-width: 125px;
+  max-width: 125px;
+}
+
+.super-regional-intel-table th:not(.stat-label-col),
+.super-regional-intel-table td:not(.stat-label-col) {
+  width: calc((100% - 125px) / 2);
+}
+
+@media (max-width: 600px) {
+  .super-regional-intel-modal {
+    width: 98vw;
+  }
+
+  .super-regional-intel-modal .regional-intel-table-wrap {
+    overflow-x: hidden;
+  }
+
+  .super-regional-intel-table {
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+  }
+
+  .super-regional-intel-table .stat-label-col {
+    width: 82px;
+    min-width: 82px;
+    max-width: 82px;
+    padding-left: 7px !important;
+    padding-right: 5px !important;
+    font-size: 0.72rem !important;
+    white-space: normal;
+    line-height: 1.15;
+  }
+
+  .super-regional-intel-table th,
+  .super-regional-intel-table td {
+    padding: 9px 5px;
+    font-size: 0.76rem;
+  }
+
+  .super-regional-intel-table th:not(.stat-label-col),
+  .super-regional-intel-table td:not(.stat-label-col) {
+    width: calc((100% - 82px) / 2);
+  }
+
+  .super-intel-header {
+    font-size: 0.76rem;
+    line-height: 1.1;
+  }
+}

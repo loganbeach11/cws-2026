@@ -1,0 +1,308 @@
+{
+  "superRegionals": [
+    {
+      "superRegionalName": "TBD Super Regional",
+      "matchupKey": "los-angeles-morgantown",
+      "teams": [
+        {
+          "team": "TBD",
+          "record": "",
+          "conference": "",
+          "conferenceRecord": "",
+          "rpi": "",
+          "sosRank": "",
+          "battingAvg": "",
+          "battingAvgRank": "",
+          "homeRuns": "",
+          "homeRunsRank": "",
+          "era": "",
+          "eraRank": "",
+          "fieldingPct": "",
+          "fieldingPctRank": ""
+        },
+        {
+          "team": "TBD",
+          "record": "",
+          "conference": "",
+          "conferenceRecord": "",
+          "rpi": "",
+          "sosRank": "",
+          "battingAvg": "",
+          "battingAvgRank": "",
+          "homeRuns": "",
+          "homeRunsRank": "",
+          "era": "",
+          "eraRank": "",
+          "fieldingPct": "",
+          "fieldingPctRank": ""
+        }
+      ]
+    },
+    {
+      "superRegionalName": "TBD Super Regional",
+      "matchupKey": "gainesville-hattiesburg",
+      "teams": [
+        {
+          "team": "TBD",
+          "record": "",
+          "conference": "",
+          "conferenceRecord": "",
+          "rpi": "",
+          "sosRank": "",
+          "battingAvg": "",
+          "battingAvgRank": "",
+          "homeRuns": "",
+          "homeRunsRank": "",
+          "era": "",
+          "eraRank": "",
+          "fieldingPct": "",
+          "fieldingPctRank": ""
+        },
+        {
+          "team": "TBD",
+          "record": "",
+          "conference": "",
+          "conferenceRecord": "",
+          "rpi": "",
+          "sosRank": "",
+          "battingAvg": "",
+          "battingAvgRank": "",
+          "homeRuns": "",
+          "homeRunsRank": "",
+          "era": "",
+          "eraRank": "",
+          "fieldingPct": "",
+          "fieldingPctRank": ""
+        }
+      ]
+    },
+    {
+      "superRegionalName": "TBD Super Regional",
+      "matchupKey": "chapel-hill-college-station",
+      "teams": [
+        {
+          "team": "TBD",
+          "record": "",
+          "conference": "",
+          "conferenceRecord": "",
+          "rpi": "",
+          "sosRank": "",
+          "battingAvg": "",
+          "battingAvgRank": "",
+          "homeRuns": "",
+          "homeRunsRank": "",
+          "era": "",
+          "eraRank": "",
+          "fieldingPct": "",
+          "fieldingPctRank": ""
+        },
+        {
+          "team": "TBD",
+          "record": "",
+          "conference": "",
+          "conferenceRecord": "",
+          "rpi": "",
+          "sosRank": "",
+          "battingAvg": "",
+          "battingAvgRank": "",
+          "homeRuns": "",
+          "homeRunsRank": "",
+          "era": "",
+          "eraRank": "",
+          "fieldingPct": "",
+          "fieldingPctRank": ""
+        }
+      ]
+    },
+    {
+      "superRegionalName": "TBD Super Regional",
+      "matchupKey": "auburn-lincoln",
+      "teams": [
+        {
+          "team": "TBD",
+          "record": "",
+          "conference": "",
+          "conferenceRecord": "",
+          "rpi": "",
+          "sosRank": "",
+          "battingAvg": "",
+          "battingAvgRank": "",
+          "homeRuns": "",
+          "homeRunsRank": "",
+          "era": "",
+          "eraRank": "",
+          "fieldingPct": "",
+          "fieldingPctRank": ""
+        },
+        {
+          "team": "TBD",
+          "record": "",
+          "conference": "",
+          "conferenceRecord": "",
+          "rpi": "",
+          "sosRank": "",
+          "battingAvg": "",
+          "battingAvgRank": "",
+          "homeRuns": "",
+          "homeRunsRank": "",
+          "era": "",
+          "eraRank": "",
+          "fieldingPct": "",
+          "fieldingPctRank": ""
+        }
+      ]
+    },
+    {
+      "superRegionalName": "TBD Super Regional",
+      "matchupKey": "atlanta-lawrence",
+      "teams": [
+        {
+          "team": "TBD",
+          "record": "",
+          "conference": "",
+          "conferenceRecord": "",
+          "rpi": "",
+          "sosRank": "",
+          "battingAvg": "",
+          "battingAvgRank": "",
+          "homeRuns": "",
+          "homeRunsRank": "",
+          "era": "",
+          "eraRank": "",
+          "fieldingPct": "",
+          "fieldingPctRank": ""
+        },
+        {
+          "team": "TBD",
+          "record": "",
+          "conference": "",
+          "conferenceRecord": "",
+          "rpi": "",
+          "sosRank": "",
+          "battingAvg": "",
+          "battingAvgRank": "",
+          "homeRuns": "",
+          "homeRunsRank": "",
+          "era": "",
+          "eraRank": "",
+          "fieldingPct": "",
+          "fieldingPctRank": ""
+        }
+      ]
+    },
+    {
+      "superRegionalName": "TBD Super Regional",
+      "matchupKey": "tuscaloosa-tallahassee",
+      "teams": [
+        {
+          "team": "TBD",
+          "record": "",
+          "conference": "",
+          "conferenceRecord": "",
+          "rpi": "",
+          "sosRank": "",
+          "battingAvg": "",
+          "battingAvgRank": "",
+          "homeRuns": "",
+          "homeRunsRank": "",
+          "era": "",
+          "eraRank": "",
+          "fieldingPct": "",
+          "fieldingPctRank": ""
+        },
+        {
+          "team": "TBD",
+          "record": "",
+          "conference": "",
+          "conferenceRecord": "",
+          "rpi": "",
+          "sosRank": "",
+          "battingAvg": "",
+          "battingAvgRank": "",
+          "homeRuns": "",
+          "homeRunsRank": "",
+          "era": "",
+          "eraRank": "",
+          "fieldingPct": "",
+          "fieldingPctRank": ""
+        }
+      ]
+    },
+    {
+      "superRegionalName": "TBD Super Regional",
+      "matchupKey": "austin-eugene",
+      "teams": [
+        {
+          "team": "TBD",
+          "record": "",
+          "conference": "",
+          "conferenceRecord": "",
+          "rpi": "",
+          "sosRank": "",
+          "battingAvg": "",
+          "battingAvgRank": "",
+          "homeRuns": "",
+          "homeRunsRank": "",
+          "era": "",
+          "eraRank": "",
+          "fieldingPct": "",
+          "fieldingPctRank": ""
+        },
+        {
+          "team": "TBD",
+          "record": "",
+          "conference": "",
+          "conferenceRecord": "",
+          "rpi": "",
+          "sosRank": "",
+          "battingAvg": "",
+          "battingAvgRank": "",
+          "homeRuns": "",
+          "homeRunsRank": "",
+          "era": "",
+          "eraRank": "",
+          "fieldingPct": "",
+          "fieldingPctRank": ""
+        }
+      ]
+    },
+    {
+      "superRegionalName": "TBD Super Regional",
+      "matchupKey": "athens-starkville",
+      "teams": [
+        {
+          "team": "TBD",
+          "record": "",
+          "conference": "",
+          "conferenceRecord": "",
+          "rpi": "",
+          "sosRank": "",
+          "battingAvg": "",
+          "battingAvgRank": "",
+          "homeRuns": "",
+          "homeRunsRank": "",
+          "era": "",
+          "eraRank": "",
+          "fieldingPct": "",
+          "fieldingPctRank": ""
+        },
+        {
+          "team": "TBD",
+          "record": "",
+          "conference": "",
+          "conferenceRecord": "",
+          "rpi": "",
+          "sosRank": "",
+          "battingAvg": "",
+          "battingAvgRank": "",
+          "homeRuns": "",
+          "homeRunsRank": "",
+          "era": "",
+          "eraRank": "",
+          "fieldingPct": "",
+          "fieldingPctRank": ""
+        }
+      ]
+    }
+  ]
+}

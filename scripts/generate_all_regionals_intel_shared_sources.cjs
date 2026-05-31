@@ -2,6 +2,40 @@
 
 const fs = require("fs");
 const path = require("path");
+const outputPath = path.join(process.cwd(), "src", "data", "regionalsIntel2026.json");
+
+const loadExistingIntelData = () => {
+  if (!fs.existsSync(outputPath)) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(fs.readFileSync(outputPath, "utf8"));
+  } catch (error) {
+    console.warn("⚠️ Could not read existing regionalsIntel2026.json. Continuing without fallback.");
+    return null;
+  }
+};
+
+const buildExistingTeamLookup = (existingData) => {
+  const lookup = new Map();
+
+  (existingData?.regionals || []).forEach((regional) => {
+    (regional?.teams || []).forEach((team) => {
+      if (!team?.team) return;
+
+      lookup.set(normalizeName(team.team), team);
+    });
+  });
+
+  return lookup;
+};
+
+const useNewOrOld = (newValue, oldValue) => {
+  return newValue !== null && newValue !== undefined && newValue !== ""
+    ? newValue
+    : oldValue ?? null;
+};
 
 const REGIONALS = [
     {
@@ -721,6 +755,8 @@ const mergeNcaaStatsForTeam = (categoryRowsByKey, team) => {
 };
 
 async function main() {
+  const existingIntelData = loadExistingIntelData();
+  const existingTeamLookup = buildExistingTeamLookup(existingIntelData);
   console.log("Fetching NCAA stat category pages...");
 
   const categoryRowsByKey = {};
@@ -763,34 +799,50 @@ async function main() {
         const ncaaStats = mergeNcaaStatsForTeam(categoryRowsByKey, team);
         const rpiInfo = findWarrenNolanRpiInfo(rpiText, team);
         const sosInfo = findWarrenNolanSosInfo(sosText, team);
+        const oldTeam = existingTeamLookup.get(normalizeName(team.team)) || {};
 
         return {
           seed: team.seed,
           team: team.team,
           regionalName: regional.name,
-
-          record: rpiInfo.record,
-          conference: rpiInfo.conference,
-          conferenceRecord: rpiInfo.conferenceRecord,
-
-          rpi: rpiInfo.rpi,
-          sos: sosInfo.sos,
-          sosRank: sosInfo.sosRank ?? rpiInfo.sosRankFromRpiPage,
-
-          battingAvg: ncaaStats.battingAvg,
-          battingAvgRank: ncaaStats.battingAvgRank,
-
-          homeRuns: ncaaStats.homeRuns ? Number(ncaaStats.homeRuns) : null,
-          homeRunsRank: ncaaStats.homeRunsRank,
-
-          era: ncaaStats.era,
-          eraRank: ncaaStats.eraRank,
-
-          fieldingPct: ncaaStats.fieldingPct,
-          fieldingPctRank: ncaaStats.fieldingPctRank,
-
-          opponentRecord: sosInfo.opponentRecord,
-          opponentWinPct: sosInfo.opponentWinPct,
+        
+          record: useNewOrOld(rpiInfo.record, oldTeam.record),
+          conference: useNewOrOld(rpiInfo.conference, oldTeam.conference),
+          conferenceRecord: useNewOrOld(
+            rpiInfo.conferenceRecord,
+            oldTeam.conferenceRecord
+          ),
+        
+          rpi: useNewOrOld(rpiInfo.rpi, oldTeam.rpi),
+          sos: useNewOrOld(sosInfo.sos, oldTeam.sos),
+          sosRank: useNewOrOld(
+            sosInfo.sosRank ?? rpiInfo.sosRankFromRpiPage,
+            oldTeam.sosRank
+          ),
+        
+          battingAvg: useNewOrOld(ncaaStats.battingAvg, oldTeam.battingAvg),
+          battingAvgRank: useNewOrOld(
+            ncaaStats.battingAvgRank,
+            oldTeam.battingAvgRank
+          ),
+        
+          homeRuns: useNewOrOld(
+            ncaaStats.homeRuns ? Number(ncaaStats.homeRuns) : null,
+            oldTeam.homeRuns
+          ),
+          homeRunsRank: useNewOrOld(ncaaStats.homeRunsRank, oldTeam.homeRunsRank),
+        
+          era: useNewOrOld(ncaaStats.era, oldTeam.era),
+          eraRank: useNewOrOld(ncaaStats.eraRank, oldTeam.eraRank),
+        
+          fieldingPct: useNewOrOld(ncaaStats.fieldingPct, oldTeam.fieldingPct),
+          fieldingPctRank: useNewOrOld(
+            ncaaStats.fieldingPctRank,
+            oldTeam.fieldingPctRank
+          ),
+        
+          opponentRecord: useNewOrOld(sosInfo.opponentRecord, oldTeam.opponentRecord),
+          opponentWinPct: useNewOrOld(sosInfo.opponentWinPct, oldTeam.opponentWinPct),
         };
       }),
     })),
@@ -800,7 +852,6 @@ async function main() {
   const outputDir = path.join(process.cwd(), "src", "data");
   fs.mkdirSync(outputDir, { recursive: true });
 
-  const outputPath = path.join(outputDir, "regionalsIntel2026.json");
   fs.writeFileSync(outputPath, JSON.stringify(output, null, 2));
 
   console.log("\n✅ All Regionals Intel generated");

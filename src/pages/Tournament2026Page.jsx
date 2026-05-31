@@ -16,6 +16,7 @@ import Regionals2026 from "../components/Regionals2026";
 import MyPicksSummary2026 from "../components/MyPicksSummary2026";
 import TiebreakerAdminControls2026 from "../components/TiebreakerAdminControls2026";
 import TiebreakerPrediction2026 from "../components/TiebreakerPrediction2026";
+import AccountDropdown2026 from "../components/AccountDropdown2026";
 
 function PickSavedToast() {
   const { pickToast } = useTournament2026();
@@ -169,55 +170,59 @@ function Tournament2026Page({ isAdmin = false }) {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        minHeight: "100vh",
-        backgroundColor: "navy",
-      }}
-    >
-      <div className="header">
-        {isAdmin && (
-          <div
-            style={{
-              position: "absolute",
-              top: "10px",
-              left: "10px",
-              color: "black",
-              fontSize: "20px",
-              zIndex: 10,
-            }}
-          >
-            <label>
-              <input
-                type="checkbox"
-                checked={tournamentComplete}
-                onChange={handleTournamentCompleteToggle}
-                style={{
-                  marginRight: "6px",
-                  transform: "scale(1.2)",
-                }}
+    <Tournament2026Provider>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "100vh",
+          backgroundColor: "navy",
+        }}
+      >
+        <div className="header">
+          {isAdmin && (
+            <div
+              style={{
+                position: "absolute",
+                top: "10px",
+                left: "10px",
+                color: "black",
+                fontSize: "20px",
+                zIndex: 10,
+              }}
+            >
+              <label>
+                <input
+                  type="checkbox"
+                  checked={tournamentComplete}
+                  onChange={handleTournamentCompleteToggle}
+                  style={{
+                    marginRight: "6px",
+                    transform: "scale(1.2)",
+                  }}
+                />
+                Tournament Complete
+              </label>
+            </div>
+          )}
+  
+          <h1 className="header-title">⚾ 2026 CWS Bracket ⚾</h1>
+  
+          {user && (
+            <div className="header-account-row">
+              <AccountDropdown2026
+                usernameDisplay={usernameDisplay}
+                userScore={userScore}
               />
-              Tournament Complete
-            </label>
-          </div>
-        )}
-
-        <h1 className="header-title">⚾ 2026 CWS Bracket ⚾</h1>
-
-        {user && (
-          <div className="header-score">
-            {usernameDisplay} · {userScore} {userScore === 1 ? "pt" : "pts"}
-          </div>
-        )}
-      </div>
-
-      <div style={{ flex: 1 }}>
-        <Tournament2026Provider>
+            </div>
+          )}
+        </div>
+  
+        <div style={{ flex: 1 }}>
           <PickSavedToast />
+  
           {isAdmin && <TiebreakerAdminControls2026 />}
-
+  
           <div className="summary-rules-row">
             <ScoringRulesCard2026 />
             <MyPicksSummary2026 />
@@ -337,9 +342,9 @@ function Tournament2026Page({ isAdmin = false }) {
               </div>
             </div>
           </div>
-        </Tournament2026Provider>
       </div>
     </div>
+    </Tournament2026Provider>
   );
 }
 

@@ -229,3 +229,66 @@
     font-size: 1.05em !important;
     font-weight: 525 !important;
   }
+  /* Super Regional Intel button — match Regional Intel button styling */
+.super-regional-intel-button {
+  margin: 6px auto 0;
+  width: calc(100% - 36px);
+  border: 2px solid #c9a227;
+  background: #fff7d6;
+  color: navy;
+  border-radius: 999px;
+  padding: 9px 12px;
+  font-size: 0.9rem;
+  font-weight: 950;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.super-regional-intel-button:hover {
+  transform: translateY(-1px);
+  background: #ffefae;
+}
+
+/* Tighter Super Regional card spacing */
+.super-regional-card {
+  padding-bottom: 16px;
+}
+
+.super-regional-card .team {
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.super-regional-card .vs,
+.super-regional-card .vs-text {
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+@media (max-width: 600px) {
+  .super-regional-intel-button {
+    margin-top: 5px;
+    width: calc(100% - 36px);
+    padding: 9px 12px;
+    font-size: 0.9rem;
+    font-weight: 700 !important;
+  }
+
+  .super-regional-card {
+    padding-bottom: 14px;
+  }
+
+  .super-regional-card .team {
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+
+  .super-regional-card .vs,
+  .super-regional-card .vs-text {
+    margin-top: 1px;
+    margin-bottom: 1px;
+  }
+}

@@ -128,22 +128,26 @@ function MyPicksSummary2026() {
 
   const getSectionRecord = (items, picks) => {
     let correct = 0;
-    let locked = 0;
-
+    let scored = 0;
+  
     Object.entries(items || {}).forEach(([id, item]) => {
       if (!item?.locked) return;
-
-      locked += 1;
-
-      const pick = picks?.[id];
+  
       const winner = item?.winner;
-
-      if (winner && normalizePick(pick) === normalizePick(winner)) {
+  
+      // Only count in the denominator if a real winner has been set.
+      if (!isFilledTeam(winner)) return;
+  
+      scored += 1;
+  
+      const pick = picks?.[id];
+  
+      if (normalizePick(pick) === normalizePick(winner)) {
         correct += 1;
       }
     });
-
-    return { correct, locked };
+  
+    return { correct, locked: scored };
   };
 
   const getMissingPicksCount = (items, picks, isAvailableFn) => {
